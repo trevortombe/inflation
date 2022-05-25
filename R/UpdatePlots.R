@@ -1,3 +1,6 @@
+# Load required packages, fetch the latest data
+source("R/Setup.R")
+
 # Services excluding shelter services
 plotdata<-data %>%
   filter(GEO=="Canada",Ref_Date>="Jan 2003") %>%
