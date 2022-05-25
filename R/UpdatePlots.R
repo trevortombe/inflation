@@ -54,6 +54,12 @@ ggplot(plotdata,aes(Ref_Date))+
   scale_x_continuous(breaks=pretty_breaks(6))
 ggsave("Plots/ServicesExShelter.png",width=7.5,height=4.5)
 
+# Save a CSV file
+write.csv(plotdata %>% select(Date=Ref_Date,
+                              TrevorSeries=excluding,
+                              StatCanSeries=actual),
+          "Data/ServicesExShelter.csv",row.names = F)
+
 # Decomposition of Specific Contributors
 # https://www.oecd.org/sdd/prices-ppp/OECD-calculation-contributions-annual-inflation.pdf
 decomp_cpi<-data %>%
