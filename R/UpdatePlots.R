@@ -74,12 +74,7 @@ decomp_cpi<-data %>%
          relimp=(w/100)*(Value/I_atlink)/(all/all_atlink), # relative importance
          relimp_old=lag(relimp,12), # relative importance using weights and prices from t-12
          relimp_new=(w/100)*(lag(Value,12)/I_atlink)/(lag(all,12)/all_atlink)) %>% # relative importance using current weights but t-12 prices) %>%
-  mutate(contrib_old=(I_atlink/lag(Value,12)-1)*relimp_old, #statcan, https://www150.statcan.gc.ca/n1/pub/62-553-x/2019001/chap-8-eng.htm
-         contrib_new=(Value/I_atlink-1)*(w/100)*(all_atlink/lag(all,12)), #statcan, https://www150.statcan.gc.ca/n1/pub/62-553-x/2019001/chap-8-eng.htm
-         contrib_cross=contrib_new+contrib_old, 
-         contrib_nocross=(Value/lag(Value,12)-1)*relimp_old, 
-         contrib_check=ifelse(basket!=lag(basket,12),contrib_cross,contrib_nocross), # verify statcan same as your main approach
-         effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
+  mutate(effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
          change=Value/lag(Value,12)-1,
          contrib=(1+change)*effective_weight-relimp_old, # main estimate
          value_if_2prc=lag(Value,12)*1.02,
