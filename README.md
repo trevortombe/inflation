@@ -4,7 +4,7 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/CoreInflation.png)
 
-![](ProductShare3Plus.png)
+![](Plots/ProductShare3Plus.png)
 
 ![](Plots/MainDecomposition.png)
 
