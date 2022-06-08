@@ -1,6 +1,100 @@
 # Load required packages, fetch the latest data
 source("R/Setup.R")
 
+# Headline and Core Inflation Measures
+plotdata<-data %>%
+  filter(Products.and.product.groups %in% c("All-items","All-items excluding food and energy"),
+         GEO=="Canada") %>%
+  group_by(Products.and.product.groups,GEO) %>%
+  mutate(YoY=Value/lag(Value,12)-1) %>%
+  select(Ref_Date,YoY,Products.and.product.groups) %>%
+  left_join(
+    BoCdata %>% filter(UOM=="Percent") %>%
+      mutate(alt=case_when(
+        grepl("trim",Alternative.measures) ~ "Trimmed",
+        grepl("median",Alternative.measures) ~ "Median",
+        grepl("common",Alternative.measures) ~ "Common"
+      )) %>%
+      select(Ref_Date,alt,Value) %>%
+      group_by(Ref_Date) %>%
+      summarise(min=min(Value),
+                max=max(Value)),by="Ref_Date"
+  )
+ggplot(plotdata %>%
+         filter(Ref_Date>="Jan 2015"),aes(Ref_Date,(1+YoY)-1,group=Products.and.product.groups,
+                                          color=Products.and.product.groups))+
+  geom_hline(yintercept=0,size=1)+
+  geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),alpha=0.5,fill=col[3],
+              inherit.aes = F)+
+  geom_line(size=2)+
+  annotate('text',x=2020.5,y=0.0325,label="Range of Core\nBoC Measures",
+           color=col[3],fontface='bold',alpha=0.6)+
+  mytheme+
+  scale_color_brewer(name="",palette="Set1")+
+  labs(x="",y="Per Cent Change, YoY")+
+  scale_y_continuous(label=percent)+
+  scale_x_continuous(breaks=pretty_breaks(6))+
+  labs(x="",y="Per Cent",
+       title="Year-over-Year Change in Consumer Prices in Canada",
+       caption="Graph by @trevortombe",
+       subtitle="Source: Own calculations from Statistics Canada data table 18-10-0004 and 18-10-0256")
+ggsave('Plots/CoreInflation.png',width=8,height=4)
+
+# Inflation Expectations
+plotdata<-yields %>%
+  filter(Financial.market.statistics %in% c("Government of Canada benchmark bond yields, long term",
+                                              "Real return benchmark bond yield, long term"),
+         Ref_Date>=2000,Value!=0) %>%
+  mutate(date=as.Date(Ref_Date,"%Y-%m-%d")) %>%
+  select(date,Value,type=Financial.market.statistics) %>%
+  mutate(type=ifelse(type=="Real return benchmark bond yield, long term","real","nom")) %>%
+  spread(type,Value) %>%
+  mutate(break_even=(1+nom/100)/(1+real/100)-1) %>%
+  drop_na()
+ggplot(plotdata,aes(date,break_even))+
+  geom_line(size=1,color=col[1])+
+  geom_hline(yintercept=0,size=1)+
+  geom_text(data=filter(plotdata,date==max(date)),color=col[1],nudge_x=180,
+            hjust=0,aes(label=paste0("Latest:",
+                                     "\n",percent(break_even,.1))))+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_x_date(date_breaks="4 years",date_labels="%Y",
+               limits=as.Date(c(min(plotdata$date),max(plotdata$date)+500)))+
+  labs(y="Percent",x="",
+       title="Long-Run Breakeven Inflation Expectations in Canada",
+       subtitle=paste("Note: based on the difference between nominal and real return Government of Canada long-run bonds.
+Source: Own calculations from Statistics Canada data table 10-10-0139-01, with data to",max(plotdata$date)),
+       caption="Graph by @trevortombe")
+ggsave("Plots/Expectations.png",width=7,height=4)
+
+# Share of Products with >3% Inflation
+temp<-data %>% 
+  filter(GEO=="Canada",Ref_Date>="Jan 1980") %>%
+  select(Ref_Date,product=Products.and.product.groups,Value) %>%
+  left_join(
+    product_list,by="product"
+  ) %>%
+  filter(keep_product==1) %>%
+  group_by(product) %>%
+  mutate(change=Value/lag(Value,12)-1,
+         above=change>0.03) %>%
+  drop_na() %>% # this drops a lot, be careful
+  group_by(Ref_Date) %>%
+  summarise(above=mean(above),
+            median=median(change))
+ggplot(temp,aes(Ref_Date,above))+
+  geom_line(size=2,color=col[1])+
+  geom_hline(yintercept=0,size=1)+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_x_continuous(breaks=pretty_breaks(6))+
+  labs(x="",y="Per Cent",
+       title="Share of Consumer Price Items With >3% YoY Price Changes",
+       caption="Graph by @trevortombe",
+       subtitle="Source: Own calculations from Statistics Canada data table 18-10-0004")
+ggsave('Plots/ProductShare3Plus.png',width=7,height=4)
+
 # Services excluding shelter services
 plotdata<-data %>%
   filter(GEO=="Canada",Ref_Date>="Jan 2003") %>%
@@ -143,3 +237,100 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Plots/MainDecomposition.png",gt,width=10,height=4.5)
+
+# Change Since Feb 2020
+time_age=max(data$Ref_Date)-as.yearmon("Feb 2020")
+temp<-decomp_cpi %>%
+  filter(Ref_Date>=max(Ref_Date)-time_age) %>%
+  group_by(product) %>%
+  mutate(change=contrib-contrib[1],
+         total=cpi-cpi[1],
+         share=change/total) %>%
+  ungroup() %>%
+  filter(Ref_Date==max(Ref_Date)) %>%
+  select(Ref_Date,product,change,total,share)
+plotdata<-temp %>%
+  filter(product %in% c("Gasoline",
+                        "Purchase and leasing of passenger vehicles",
+                        "Purchase of recreational vehicles and outboard motors",
+                        "Homeowners' replacement cost",
+                        "Household furnishings and equipment",
+                        "Food purchased from stores")) %>%
+  group_by(Ref_Date) %>%
+  mutate(included=sum(change),
+         `All Other Items`=total-included) %>%
+  select(Ref_Date,product,change,`All Other Items`,total) %>%
+  spread(product,change) %>%
+  gather(product,change,-Ref_Date,-total) %>%
+  mutate(product=ifelse(product %in% c("Purchase of recreational vehicles and outboard motors",
+                                       "Purchase and leasing of passenger vehicles"),
+                        "New\nVehicles",product)) %>%
+  group_by(Ref_Date,product) %>%
+  summarise(change=sum(change)) %>%
+  ungroup() %>%
+  filter(Ref_Date>="Jan 2018") %>%
+  mutate(product=case_when(
+    product=="Food purchased from stores" ~ "Food\n(Groceries)",
+    product=="All Other Items" ~ "Everything\nElse",
+    product=="Water, fuel and electricity" ~ "Water\nFuel\nElectricity",
+    product=="Mortgage interest cost" ~ "Mortgage\nInterest",
+    product=="Household furnishings and equipment" ~ "Household\nFurnishings\nand Equip.",
+    product=="Purchase and leasing of passenger vehicles" ~ "New\nVehicles",
+    product=="Homeowners' replacement cost" ~ "Homeowners'\ndepreciation",
+    TRUE ~ product
+  )) %>%
+  select(type=product,value=change) %>%
+  rbind(
+    data.frame(
+      type=as.character(c(max(decomp_cpi$Ref_Date)-time_age,max(decomp_cpi$Ref_Date))),
+      value=c(filter(inf_rates,Ref_Date==max(inf_rates$Ref_Date)-time_age)$YoY,
+              filter(inf_rates,Ref_Date==max(inf_rates$Ref_Date))$YoY)
+    )
+  ) %>%
+  mutate(id=ifelse(type==as.character(max(inf_rates$Ref_Date)-time_age),0.5,row_number()),
+         id=ifelse(type=="Everything\nElse",98,id),
+         id=ifelse(type=="Energy",1,id),
+         id=ifelse(type=="Homeowners'\ndepreciation",2,id),
+         id=ifelse(type==as.character(max(inf_rates$Ref_Date)),99,id)) %>%
+  arrange(id) %>%
+  mutate(type=factor(type,levels=type),
+         id=seq_along(value),
+         sign=ifelse(value>0,"in","out"),
+         sign=ifelse(id==n(),"net",sign),
+         sign=ifelse(id==1,"first",sign),
+         end=cumsum(value),
+         end=ifelse(id==n(),0,end),
+         start=ifelse(id>1,lag(end,1),0))
+ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
+         mutate(id=id-1))+
+  geom_segment(x=-0.5,xend=0.5,
+               y=plotdata[1,]$value,yend=plotdata[1,]$value,size=2,
+               color=col[2])+
+  geom_segment(x=dim(plotdata)[1]-1-0.5,xend=dim(plotdata)[1]-1+0.5,
+               y=plotdata[dim(plotdata)[1],]$value,
+               yend=plotdata[dim(plotdata)[1],]$value,size=2,color=col[2])+
+  geom_rect(aes(x=type,xmin = id - 0.4, xmax = id + 0.4,
+                ymin=end,ymax=start,fill=sign),show.legend = F)+
+  annotate('text',x=0,y=plotdata[1,]$value,
+           vjust=-0.5,color=col[2],fontface='bold',
+           label=paste0(plotdata[1,]$type,": ",
+                        percent(plotdata[1,]$value,0.1)))+
+  annotate('text',x=dim(plotdata)[1]-1,
+           y=plotdata[dim(plotdata)[1],]$value,
+           vjust=1.5,color=col[2],fontface='bold',
+           label=paste0(plotdata[dim(plotdata)[1],]$type,": ",
+                        percent(plotdata[dim(plotdata)[1],]$value,0.1)))+
+  coord_cartesian(xlim=c(0,dim(plotdata)[1]-1))+
+  geom_segment(data=plotdata %>% filter(sign!="net",sign!='first') %>%
+                 mutate(id=id-1),
+               aes(x=id+0.45,xend=id+0.45,y=start,yend=end),
+               size=0.75,arrow=arrow(type="closed",length=unit(0.15,"cm")))+
+  mytheme+
+  # scale_fill_manual(name="",values=c(col[3],col[2],col[2],col[1]))+
+  scale_y_continuous(breaks=pretty_breaks(n=6),label=percent)+
+  labs(x="",y="Percentage Points",
+       title="Contributions to Changes in Canada's Inflation Rate",
+       subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
+       caption="Graph by @trevortombe")
+ggsave("Plots/ChangeFeb2020.png",width=10,height=4)
+

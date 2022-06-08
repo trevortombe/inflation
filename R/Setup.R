@@ -82,8 +82,21 @@ getTABLE<-function(x) {
 # Load the Main Data Sets #
 ###########################
 
-# Main CPI Data
+# Main CPI Data and Bond Yields
 data<-getTABLE("18100004")
+BoCdata<-getTABLE("18100256")
+yields<-getTABLE("10100139")
+
+# Product List
+product_list<-read.csv("R/cpi_products.csv")
+
+# Headline Inflation Rate (Used in the UpdatePlots.R)
+inf_rates<-data %>%
+  filter(Products.and.product.groups=="All-items",
+         GEO=="Canada") %>%
+  mutate(YoY=Value/lag(Value,12)-1) %>%
+  select(Ref_Date,YoY) %>%
+  drop_na()
 
 # Basket Weights
 weights<-getTABLE("18100007")
