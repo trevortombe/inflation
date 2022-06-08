@@ -93,7 +93,7 @@ ggplot(temp,aes(Ref_Date,above))+
        title="Share of Consumer Price Items With >3% YoY Price Changes",
        caption="Graph by @trevortombe",
        subtitle="Source: Own calculations from Statistics Canada data table 18-10-0004")
-ggsave('Plots/ProductShare3Plus.png',width=7,height=4)
+ggsave('Plots/ProductShare3Plus.png',width=8,height=4)
 
 # Services excluding shelter services
 plotdata<-data %>%
