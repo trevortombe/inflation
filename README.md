@@ -4,6 +4,8 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/CoreInflation.png)
 
+![](Plots/PersonalInflation.png)
+
 ![](Plots/ProductShare3Plus.png)
 
 ![](Plots/MainDecomposition.png)
