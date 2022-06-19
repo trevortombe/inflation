@@ -25,7 +25,8 @@ ggplot(plotdata,aes(date,value))+
                color=col[1],size=1,arrow=arrow(length=unit(1.5,'mm')))+
   scale_y_continuous(limit=c(NA,51000),label=dollar,
                      breaks=pretty_breaks(5))+
-  scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+14)))+
+  scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+14)),
+               date_labels = format("%B\n%Y"))+
   mytheme+
   labs(x="",y="US Dollars",
        caption='Graph by @trevortombe',
