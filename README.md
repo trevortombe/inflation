@@ -15,3 +15,5 @@ This repo contains several regularly updated calculations -- such as the recentl
 ![](Plots/ServicesExShelter.png)
 
 ![](Plots/Expectations.png)
+
+![](Plots/Bitcoin.png)
