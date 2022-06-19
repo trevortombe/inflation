@@ -2,7 +2,7 @@
 rm(list=ls(all=TRUE)) 
 
 # Install Packages and Load
-packages<-c("scales","zoo","dplyr","gt","testit","data.table",
+packages<-c("scales","zoo","dplyr","gt","testit","data.table","webshot",
             "ggplot2","ggthemes","tidyr","grid","fredr","cansim")
 check.packages <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
