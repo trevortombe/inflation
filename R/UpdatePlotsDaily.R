@@ -29,7 +29,9 @@ ggplot(plotdata,aes(date,value))+
   mytheme+
   labs(x="",y="US Dollars",
        caption='Graph by @trevortombe',
-       title="Bitcoin Prices Since March 15",
-       subtitle=paste("Source: St. Louis FRED, Series CBBTCUSD. As of",max(plotdata$date)))
+       title=paste("Bitcoin Prices (USD),",
+                   format(min(plotdata$date),"%B %d"),"to",
+                   format(max(plotdata$date),"%B %d")),
+       subtitle=paste0("Source: St. Louis FRED, Series CBBTCUSD. As of ",max(plotdata$date),"."))
 ggsave("Plots/Bitcoin.png",width=8,height=4)
 
