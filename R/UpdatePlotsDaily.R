@@ -17,10 +17,6 @@ ggplot(plotdata,aes(date,value))+
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
   annotate('text',x=as.Date("2022-04-02"),y=50000,hjust=0,color=col[1],
            label="Pierre Poilievre says: \"opt out\" of\ninflation by buying crypto")+
-  annotate('text',x=as.Date("2022-05-09"),y=35250,hjust=0,color=col[1],vjust=0,
-           label="Down 25%")+
-  annotate('text',x=as.Date("2022-06-13")-2,y=23500,hjust=1,color=col[1],vjust=0,
-           label="Down 50%")+
   annotate('text',x=max(plotdata$date)+2,y=filter(plotdata,date==max(date))$value,
            hjust=0,color=col[1],vjust=0,
            label=paste("Down",percent(abs(filter(plotdata,date==max(date))$value/filter(plotdata,date==as.Date("2022-03-28"))$value-1))))+
@@ -29,7 +25,7 @@ ggplot(plotdata,aes(date,value))+
                color=col[1],size=1,arrow=arrow(length=unit(1.5,'mm')))+
   scale_y_continuous(limit=c(NA,51000),label=dollar,
                      breaks=pretty_breaks(5))+
-  scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+10)))+
+  scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+14)))+
   mytheme+
   labs(x="",y="US Dollars",
        caption='Graph by @trevortombe',
