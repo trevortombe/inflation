@@ -3,7 +3,7 @@ rm(list=ls(all=TRUE))
 
 # Install Packages and Load
 packages<-c("scales","zoo","dplyr","gt","testit","data.table",
-            "ggplot2","ggthemes","tidyr","grid","fredr")
+            "ggplot2","ggthemes","tidyr","grid","fredr","cansim")
 check.packages <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
   if (length(new.pkg)) 
@@ -50,31 +50,3 @@ mytheme<-theme_minimal()+theme(
   panel.grid.minor = element_blank(),
   panel.grid.major.x = element_blank()
 )
-
-# Function to Fetch the StatCan Table
-getTABLE<-function(x) {
-  url<-paste0("https://www150.statcan.gc.ca/n1/tbl/csv/",x,"-eng.zip")
-  temp<-tempfile()
-  download.file(url,temp)
-  if (has_warning(unzip(temp,paste0(x,".csv")))) { # Avoids html landing page
-    download.file(url,temp)
-  }
-  unzip(temp,paste0(x,".csv"))
-  rawdata<-fread(paste0(x,".csv"),encoding="UTF-8",stringsAsFactors=FALSE)
-  colnames(rawdata)[1]<-"Ref_Date"
-  data<-rawdata %>%
-    dplyr::rename(Value=VALUE) %>%
-    select(-UOM_ID,-SCALAR_ID) %>%
-    dplyr::rename_all(list(~make.names(.))) # this replaces the spaces with dots in the column names
-  if (class(data$Ref_Date)=="character" & !grepl("/",data[1]$Ref_Date)){
-    data<-data %>%
-      mutate(Ref_Date=as.yearmon(Ref_Date))
-  }
-  if ("GEO" %in% colnames(data)){
-    data <- data %>%
-      left_join(provnames,by="GEO")
-  }
-  sourcetable<-gsub("(\\d{2})(\\d{2})(\\d{4})$","\\1-\\2-\\3",x)
-  comment(data)<-paste("Statistics Canada data table",sourcetable)
-  return(data)
-}

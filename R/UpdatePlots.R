@@ -5,12 +5,25 @@ source("R/Setup.R")
 # Load the Main Data Sets #
 ###########################
 
-# Main CPI Data and Bond Yields
-data<-getTABLE("18100004")
-BoCdata<-getTABLE("18100256")
-yields<-getTABLE("10100139")
+# Load and Format Main CPI Data
+data<-get_cansim('18100004') %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
+  rename_all(list(~make.names(.)))
 
-# Product List
+# Load and Format Main Bank of Canada Data
+BoCdata<-get_cansim('18100256') %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
+  rename_all(list(~make.names(.)))
+
+# Load and Format Bond Yield Data
+yields<-get_cansim('10100139') %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.Date(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
+
+# Product List (Manually Created)
 product_list<-read.csv("R/cpi_products.csv")
 
 # Headline Inflation Rate (Used in the UpdatePlots.R)
@@ -22,7 +35,10 @@ inf_rates<-data %>%
   drop_na()
 
 # Basket Weights
-weights<-getTABLE("18100007")
+weights<-get_cansim('18100007') %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
 
 # Convert to monthly basket weights
 weights_monthly<-weights %>%
@@ -408,11 +424,26 @@ spend_list<-c("Food purchased from stores",
               "Education",
               "Reading materials and other printed matter",
               "Tobacco products, alcoholic beverages and cannabis for non-medical use")
-spending_income<-getTABLE("11100223")
-spending_HHtype<-getTABLE("11100224")
-spending_tenure<-getTABLE("11100225")
-spending_rural<-getTABLE("11100226")
-spending_age<-getTABLE("11100227")
+spending_income<-get_cansim("11100223") %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
+spending_HHtype<-get_cansim("11100224") %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
+spending_tenure<-get_cansim("11100225") %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
+spending_rural<-get_cansim("11100226") %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
+spending_age<-get_cansim("11100227") %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename_all(list(~make.names(.)))
 personal_inf <- function(df){
   df %>%
     rename(product=Household.expenditures..summary.level.categories) %>%
