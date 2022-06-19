@@ -3,7 +3,7 @@ rm(list=ls(all=TRUE))
 
 # Install Packages and Load
 packages<-c("scales","zoo","dplyr","gt","testit","data.table",
-            "ggplot2","ggthemes","tidyr","grid")
+            "ggplot2","ggthemes","tidyr","grid","fredr")
 check.packages <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
   if (length(new.pkg)) 
@@ -11,6 +11,7 @@ check.packages <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 check.packages(packages)
+fredr_set_key(Sys.getenv("FRED_KEY"))
 
 # Your preferred color scheme (https://www.color-hex.com/color-palette/33490)
 col<-c("#CC2529","#396ab1","#3E9651","#DA7C30","#535154","#6B4C9A","#922428","#948B3D")
@@ -77,54 +78,3 @@ getTABLE<-function(x) {
   comment(data)<-paste("Statistics Canada data table",sourcetable)
   return(data)
 }
-
-###########################
-# Load the Main Data Sets #
-###########################
-
-# Main CPI Data and Bond Yields
-data<-getTABLE("18100004")
-BoCdata<-getTABLE("18100256")
-yields<-getTABLE("10100139")
-
-# Product List
-product_list<-read.csv("R/cpi_products.csv")
-
-# Headline Inflation Rate (Used in the UpdatePlots.R)
-inf_rates<-data %>%
-  filter(Products.and.product.groups=="All-items",
-         GEO=="Canada") %>%
-  mutate(YoY=Value/lag(Value,12)-1) %>%
-  select(Ref_Date,YoY) %>%
-  drop_na()
-
-# Basket Weights
-weights<-getTABLE("18100007")
-
-# Convert to monthly basket weights
-weights_monthly<-weights %>%
-  filter(GEO=="Canada",
-         Geographic.distribution.of.weight=="Distribution to selected geographies",
-         Price.period.of.weight=="Weight at basket link month prices") %>%
-  select(basket=Ref_Date,product=Products.and.product.groups,w=Value)
-link_months<-data.frame(
-  Ref_Date=seq(as.yearmon("1978-01"),max(data$Ref_Date),1/12)
-) %>%
-  mutate(basket=case_when(
-    Ref_Date>="Oct 1978" & Ref_Date<"Apr 1982" ~ 1974,
-    Ref_Date>="Apr 1982" & Ref_Date<"Jan 1985" ~ 1978,
-    Ref_Date>="Jan 1985" & Ref_Date<"Jan 1989" ~ 1982,
-    Ref_Date>="Jan 1989" & Ref_Date<"Jan 1995" ~ 1986,
-    Ref_Date>="Jan 1995" & Ref_Date<"Jan 1998" ~ 1992,
-    Ref_Date>="Jan 1998" & Ref_Date<"Jan 2003" ~ 1996,
-    Ref_Date>="Jan 2003" & Ref_Date<"Apr 2007" ~ 2001,
-    Ref_Date>="Apr 2007" & Ref_Date<"Apr 2011" ~ 2005,
-    Ref_Date>="Apr 2011" & Ref_Date<"Jan 2013" ~ 2009,
-    Ref_Date>="Jan 2013" & Ref_Date<"Dec 2014" ~ 2011,
-    Ref_Date>="Dec 2014" & Ref_Date<"Dec 2016" ~ 2013,
-    Ref_Date>="Dec 2016" & Ref_Date<"Dec 2018" ~ 2015,
-    Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
-    Ref_Date>="Jun 2021" ~ 2020
-  )) %>%
-  group_by(basket) %>%
-  mutate(link_month=min(Ref_Date)) %>% ungroup()
