@@ -499,7 +499,7 @@ table<-data.frame(Group=c("All Households","Highest Income Quintile","Lowest Inc
   ) %>%
   tab_source_note(gt::html(paste("<p style='font-size:12px'>Source: Own calculations from Statistics Canada data tables 18-10-0004 and 11-10-0223 through 11-10-0227. Based on 2019 SHS expenditure shares. Experimental estimates.",
                                  "Table and calculations by @trevortombe. </p>"))) %>%
-  cols_width(vars(Group)~px(350),
+  cols_width(starts_with('Group')~px(350),
              everything() ~px(85)) %>%
   cols_label(Group="Household Type") %>%
   tab_options(data_row.padding = px(1))
