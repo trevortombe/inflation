@@ -258,10 +258,9 @@ plotdata<-decomp_cpi %>%
   filter(product %in% c("Food purchased from stores",
                         "Energy",
                         "Household furnishings and equipment",
-                        "Rent",
+                        "Rented accommodation","Owned accommodation",
                         "Purchase and leasing of passenger vehicles",
-                        "Purchase of recreational vehicles and outboard motors",
-                        "Homeowners' replacement cost")) %>%
+                        "Purchase of recreational vehicles and outboard motors")) %>%
   group_by(Ref_Date) %>%
   mutate(total=sum(contrib),
          `All Other Items`=cpi-total) %>%
@@ -504,3 +503,32 @@ table<-data.frame(Group=c("All Households","Highest Income Quintile","Lowest Inc
   cols_label(Group="Household Type") %>%
   tab_options(data_row.padding = px(1))
 gtsave(table,'Plots/PersonalInflation.png')
+
+# All items excluding whatever you want
+plotdata<-decomp_cpi %>%
+  filter(product %in% c("Energy","Rented accommodation","Owned accommodation")) %>%
+  select(Ref_Date,cpi,effective_weight,contrib,product) %>%
+  group_by(Ref_Date) %>%
+  summarise(cpi=mean(cpi),
+            weight=sum(effective_weight),
+            contrib=sum(contrib),
+            if_zero=cpi-contrib) %>%
+  mutate(excluding=(cpi-contrib)/(1-weight)) %>%
+  filter(Ref_Date>="Jan 1990")
+ggplot(plotdata,aes(Ref_Date))+
+  geom_line(aes(y=cpi,color="All-Items"),size=2)+
+  geom_line(aes(y=cpi-contrib,color="Counterfactual with No Change in Energy / Shelter Prices"),size=2)+
+  geom_text(data=filter(plotdata,Ref_Date==max(Ref_Date)),fontface='bold',
+            aes(label=percent(cpi,0.1),y=cpi),hjust=0,nudge_x=0.5,color=col[1])+
+  geom_text(data=filter(plotdata,Ref_Date==max(Ref_Date)),fontface='bold',
+            aes(label=percent(cpi-contrib,0.1),y=cpi-contrib),hjust=0,
+            nudge_x=0.5,color=col[2])+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+1))+
+  geom_hline(yintercept=0,size=1)+
+  labs(title="Energy and Shelter's Effect on Inflation in Canada",
+       x="",y="Percent",
+       subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
+       caption="Graph by @trevortombe")
+ggsave("Plots/EnergyShelterEffect.png",width=8,height=4)

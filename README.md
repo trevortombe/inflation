@@ -4,13 +4,15 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/CoreInflation.png)
 
-![](Plots/PersonalInflation.png)
-
-![](Plots/ProductShare3Plus.png)
+![](Plots/EnergyShelterEffect.png)
 
 ![](Plots/MainDecomposition.png)
 
 ![](Plots/ChangeFeb2020.png)
+
+![](Plots/ProductShare3Plus.png)
+
+![](Plots/PersonalInflation.png)
 
 ![](Plots/ServicesExShelter.png)
 
