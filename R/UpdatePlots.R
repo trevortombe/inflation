@@ -322,10 +322,10 @@ temp<-decomp_cpi %>%
   filter(Ref_Date==max(Ref_Date)) %>%
   select(Ref_Date,product,change,total,share)
 plotdata<-temp %>%
-  filter(product %in% c("Gasoline",
+  filter(product %in% c("Energy",
                         "Purchase and leasing of passenger vehicles",
                         "Purchase of recreational vehicles and outboard motors",
-                        "Homeowners' replacement cost",
+                        "Owned accommodation","Rented accommodation",
                         "Household furnishings and equipment",
                         "Food purchased from stores")) %>%
   group_by(Ref_Date) %>%
@@ -336,7 +336,7 @@ plotdata<-temp %>%
   gather(product,change,-Ref_Date,-total) %>%
   mutate(product=ifelse(product %in% c("Purchase of recreational vehicles and outboard motors",
                                        "Purchase and leasing of passenger vehicles"),
-                        "New\nVehicles",product)) %>%
+                        "New/Used\nVehicles",product)) %>%
   group_by(Ref_Date,product) %>%
   summarise(change=sum(change)) %>%
   ungroup() %>%
@@ -348,7 +348,8 @@ plotdata<-temp %>%
     product=="Mortgage interest cost" ~ "Mortgage\nInterest",
     product=="Household furnishings and equipment" ~ "Household\nFurnishings\nand Equip.",
     product=="Purchase and leasing of passenger vehicles" ~ "New\nVehicles",
-    product=="Homeowners' replacement cost" ~ "Homeowners'\ndepreciation",
+    product=="Owned accommodation" ~ "Owned\nAccommodation",
+    product=="Rented accommodation" ~ "Rented\nAccommodation",
     TRUE ~ product
   )) %>%
   select(type=product,value=change) %>%
@@ -383,12 +384,12 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
                yend=plotdata[dim(plotdata)[1],]$value,size=2,color=col[2])+
   geom_rect(aes(x=type,xmin = id - 0.4, xmax = id + 0.4,
                 ymin=end,ymax=start,fill=sign),show.legend = F)+
-  annotate('text',x=0,y=plotdata[1,]$value,
+  annotate('text',x=0,y=plotdata[1,]$value,size=3.5,
            vjust=-0.5,color=col[2],fontface='bold',
            label=paste0(plotdata[1,]$type,": ",
                         percent(plotdata[1,]$value,0.1)))+
   annotate('text',x=dim(plotdata)[1]-1,
-           y=plotdata[dim(plotdata)[1],]$value,
+           y=plotdata[dim(plotdata)[1],]$value,size=3.5,
            vjust=1.5,color=col[2],fontface='bold',
            label=paste0(plotdata[dim(plotdata)[1],]$type,": ",
                         percent(plotdata[dim(plotdata)[1],]$value,0.1)))+
