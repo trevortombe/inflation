@@ -13,6 +13,12 @@ check.packages <- function(pkg){
 check.packages(packages)
 fredr_set_key(Sys.getenv("FRED_KEY"))
 
+# Required to save gtables
+webshot:::find_phantom()
+if (is.null(webshot:::find_phantom())){
+  webshot::install_phantomjs()
+}
+
 # Your preferred color scheme (https://www.color-hex.com/color-palette/33490)
 col<-c("#CC2529","#396ab1","#3E9651","#DA7C30","#535154","#6B4C9A","#922428","#948B3D")
 scale_colour_discrete <- function(...) {
