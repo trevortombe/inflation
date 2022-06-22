@@ -397,7 +397,7 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
   geom_segment(data=plotdata %>% filter(sign!="net",sign!='first') %>%
                  mutate(id=id-1),
                aes(x=id+0.45,xend=id+0.45,y=start,yend=end),
-               size=0.75,arrow=arrow(type="closed",length=unit(0.15,"cm")))+
+               size=0.5,arrow=arrow(type="closed",length=unit(0.1,"cm")))+
   mytheme+
   # scale_fill_manual(name="",values=c(col[3],col[2],col[2],col[1]))+
   scale_y_continuous(breaks=pretty_breaks(n=6),label=percent)+
