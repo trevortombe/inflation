@@ -15,7 +15,7 @@ ggplot(plotdata,aes(date,value))+
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
   geom_point(data=filter(plotdata,date==max(date)),
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
-  annotate('text',x=as.Date("2022-04-10"),y=50000,hjust=0,color=col[1],
+  annotate('text',x=as.Date("2022-04-11"),y=50000,hjust=0,color=col[1],
            label="Pierre Poilievre says: \"opt out\" of\ninflation by buying crypto")+
   annotate('text',x=max(plotdata$date)+2,y=filter(plotdata,date==max(date))$value,
            hjust=0,color=col[1],vjust=0,
