@@ -2,7 +2,7 @@
 name: update_daily_plots
 on:
   schedule:
-    - cron: '00 14 * * *'
+    - cron: '00 18 * * *'
   workflow_dispatch:
 jobs:
   build:
