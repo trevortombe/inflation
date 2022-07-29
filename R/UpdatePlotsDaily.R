@@ -118,7 +118,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
   annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2.5,
-           label="Alberta Provincial Diesel Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.7c/L)  ")+
+           label="Alberta Provincial Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
            label=effect,color=col[3],size=3)+
   mytheme+
@@ -137,7 +137,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
            label=paste0("  Passthrough\n  Estimate for\n  ",
                         gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),":\n  ",change),hjust=0)+
   labs(x="",y="Cents per Litre",
-       title="Effect of Suspending the Alberta Diesel Tax on Prices",
+       title="Effect of Suspending the Alberta Gas Tax on Prices",
        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
        subtitle=paste0("Displays average prices in Alberta compared to a \"synthetic Alberta\" composed of a fixed-weighted average of
 other provinces, with weights selected to best fit the period prior to the tax change. Data to ",
