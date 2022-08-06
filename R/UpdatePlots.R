@@ -11,6 +11,12 @@ data<-get_cansim('18100004') %>%
   mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
   rename_all(list(~make.names(.)))
 
+# Seasonally Adjusted CPI Data
+data2<-get_cansim('18100006') %>%
+  rename(Value=VALUE) %>%
+  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
+  rename_all(list(~make.names(.)))
+
 # Load and Format Main Bank of Canada Data
 BoCdata<-get_cansim('18100256') %>%
   rename(Value=VALUE) %>%
@@ -72,7 +78,6 @@ link_months<-data.frame(
 #############################
 # Generate the Plot Updates #
 #############################
-
 
 # Headline and Core Inflation Measures
 plotdata<-data %>%
@@ -533,3 +538,66 @@ ggplot(plotdata,aes(Ref_Date))+
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
        caption="Graph by @trevortombe")
 ggsave("Plots/EnergyShelterEffect.png",width=8,height=4)
+
+# Seasonally Adjusted CPI Levels vs Bank of Canada Target
+plotdata<-data2 %>%
+  group_by(Products.and.product.groups,GEO) %>%
+  mutate(YoY=Value/lag(Value,12)-1) %>%
+  filter(Products.and.product.groups %in% c("All-items","All-items excluding food and energy"),
+         Ref_Date>="Jan 2000",GEO=="Canada") %>% 
+  mutate(month=month(Ref_Date)) %>%
+  filter(Ref_Date>="Jan 2019") %>%
+  mutate(row=1:n()) %>%
+  filter(Products.and.product.groups=="All-items") %>%
+  select(Ref_Date,Value,row) %>%
+  mutate(avg=(Value/Value[1])^(12/row)-1,
+         months_since_covid=12*(Ref_Date-as.yearmon("Feb 2020")),
+         target=1.02^(months_since_covid/12)*weighted.mean(Value,Ref_Date=="Feb 2020"),
+         upper=1.03^(months_since_covid/12)*weighted.mean(Value,Ref_Date=="Feb 2020"),
+         lower=1.01^(months_since_covid/12)*weighted.mean(Value,Ref_Date=="Feb 2020"))
+ggplot(plotdata,aes(Ref_Date,Value))+
+  geom_ribbon(data=filter(plotdata,Ref_Date>="Feb 2020"),
+              aes(ymin=lower,ymax=upper),fill='gray',alpha=0.5)+
+  geom_line(size=2,color=col[2])+
+  geom_line(data=filter(plotdata,Ref_Date>="Feb 2020"),aes(y=target),size=2,color=col[3],
+            linetype='dotted')+
+  annotate('text',x=2021,y=143,hjust=1,
+           label="Bank of Canada 1-3% Target Range",color='gray',fontface='bold')+
+  annotate('text',x=2020.25,y=139,hjust=1,label="Mid-Point 2% Target",color=col[3],fontface='bold')+
+  annotate('text',x=2020.25,y=135,hjust=0,label="CPI Data",color=col[2],fontface='bold')+
+  mytheme+
+  labs(title="Path of the Consumer Price Index in Canada",x="",y="CPI Index (2002 = 100)",
+       subtitle="Source: own calculations from Statistics Canada data table 18-10-0006",
+       caption='Graph by @trevortombe')
+ggsave('Plots/BoCPath.png',width=8,height=4)
+
+# Change in Price Levels by Major Product Category
+plotdata<-data2 %>%
+  filter(!(Products.and.product.groups %in% c("All-items","All-items excluding food and energy","All-items excluding food")) & 
+           Ref_Date>="Feb 2020") %>%
+  group_by(Products.and.product.groups) %>%
+  mutate(change=Value/Value[1]-1) %>%
+  ungroup() %>%
+  mutate(Products.and.product.groups=ifelse(Products.and.product.groups=="Alcoholic beverages, tobacco products and recreational cannabis",
+                                            "Alcohol and Tobacco",Products.and.product.groups),
+         Products.and.product.groups=ifelse(Products.and.product.groups=="Household operations, furnishings and equipment",
+                                            "Household, furniture/eauipment",Products.and.product.groups),
+         Products.and.product.groups=ifelse(Products.and.product.groups=="Recreation, education and reading",
+                                            "Recreation, education",Products.and.product.groups))
+ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
+                    color=Products.and.product.groups))+
+  geom_hline(yintercept=0,size=1)+
+  geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
+                  aes(label=Products.and.product.groups),hjust=0,
+                  direction='y',nudge_x=0.05,
+                  show.legend = F,segment.alpha=0)+
+  geom_line(size=2,show.legend=F)+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1),
+                  breaks=pretty_breaks(6),format="%b\n%Y")+
+  labs(x="",y="Per Cent Change",title="Price Changes in Canada, by Broad Product Category",
+       subtitle="Displays the change in prices since February 2020, by major CPI item,
+Source: Own calculations from Statistics Canada data table 18-10-0006.",
+       caption="Graph by @trevortombe")
+ggsave("Plots/ByProduct.png",width=8,height=4)
