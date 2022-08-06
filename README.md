@@ -10,9 +10,13 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/ChangeFeb2020.png)
 
+![](Plots/ByProduct.png)
+
 ![](Plots/ProductShare3Plus.png)
 
 ![](Plots/ServicesExShelter.png)
+
+![](Plots/BoCPath.png)
 
 ![](Plots/Expectations.png)
 
