@@ -588,7 +588,7 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                     color=Products.and.product.groups))+
   geom_hline(yintercept=0,size=1)+
   geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
-                  aes(label=Products.and.product.groups),hjust=0,
+                  aes(label=as.character(Products.and.product.groups)),hjust=0,
                   direction='y',nudge_x=0.05,
                   show.legend = F,segment.alpha=0)+
   geom_line(size=2,show.legend=F)+
