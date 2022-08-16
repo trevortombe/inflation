@@ -589,12 +589,12 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
   geom_hline(yintercept=0,size=1)+
   geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
                   aes(label=as.character(Products.and.product.groups)),hjust=0,
-                  direction='y',nudge_x=0.05,
+                  direction='y',nudge_x=0.05,size=3,
                   show.legend = F,segment.alpha=0)+
   geom_line(size=2,show.legend=F)+
   mytheme+
   scale_y_continuous(label=percent)+
-  scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1),
+  scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1.5),
                   breaks=pretty_breaks(6),format="%b\n%Y")+
   labs(x="",y="Per Cent Change",title="Price Changes in Canada, by Broad Product Category",
        subtitle="Displays the change in prices since February 2020, by major CPI item,
