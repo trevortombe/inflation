@@ -45,7 +45,7 @@ data<-read_excel("Data/gas_data_all.xls") %>%
   mutate(date=as.Date(Dates,"%m/%d/%Y"))
 start="2022-01-10" # start date matters; pick one that helps graph look intuitive
 model<-lm(AB~BC+SK+MB+ON+QC+NB+NS+PE+NL,data=data %>% filter(date>=start)) # pre-treatment best fit
-url<-'https://charting.kalibrate.com/Charting/DownloadExcel?file=/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2022/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2022/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
 GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
 new <- read_excel(gas_file,skip=2)
 colnames(new)[1]<-"city"
@@ -149,7 +149,7 @@ data<-read_excel("Data/diesel_data_all.xls") %>%
   mutate(date=as.Date(Dates,"%m/%d/%Y"))
 start="2022-01-10"
 model<-lm(AB~BC+SK+MB+ON+QC+NB+NS+PE+NL,data=data %>% filter(date>=start))
-url<-'https://charting.kalibrate.com/Charting/DownloadExcel?file=/WPPS/Diesel/Retail%20(Incl.%20Tax)/DAILY/2022/Diesel_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
+url<-'https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/DAILY/2022/Diesel_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
 GET(url, write_disk(diesel_file <- tempfile(fileext = ".xlsx")))
 new <- read_excel(diesel_file,skip=2)
 colnames(new)[1]<-"city"
