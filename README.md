@@ -8,11 +8,15 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/MainDecomposition.png)
 
+![](Plots/ByProduct.png)
+
 ![](Plots/ChangeFeb2020.png)
 
 ![](Plots/ProductShare3Plus.png)
 
 ![](Plots/ServicesExShelter.png)
+
+![](Plots/PersonalInflation.png)
 
 ![](Plots/BoCPath.png)
 

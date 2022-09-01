@@ -105,7 +105,7 @@ ggplot(plotdata %>%
   geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),alpha=0.5,fill=col[3],
               inherit.aes = F)+
   geom_line(size=2)+
-  annotate('text',x=2020.5,y=0.0325,label="Range of Core\nBoC Measures",
+  annotate('text',x=2020.25,y=0.0325,label="Range of Core\nBoC Measures",
            color=col[3],fontface='bold',alpha=0.6)+
   mytheme+
   scale_color_brewer(name="",palette="Set1")+
@@ -452,7 +452,7 @@ spending_age<-get_cansim("11100227") %>%
 personal_inf <- function(df){
   df %>%
     rename(product=Household.expenditures..summary.level.categories) %>%
-    rename(type=as.character(colnames(df)[5])) %>%
+    rename(type=as.character(colnames(df)[26])) %>%
     filter(Statistic=="Average expenditure per household",
            product %in% spend_list,GEO=="Canada",
            Ref_Date==max(Ref_Date)) %>%
@@ -575,6 +575,7 @@ ggsave('Plots/BoCPath.png',width=8,height=4)
 plotdata<-data2 %>%
   filter(!(Products.and.product.groups %in% c("All-items","All-items excluding food and energy","All-items excluding food")) & 
            Ref_Date>="Feb 2020") %>%
+  mutate(Products.and.product.groups=as.character(Products.and.product.groups)) %>%
   group_by(Products.and.product.groups) %>%
   mutate(change=Value/Value[1]-1) %>%
   ungroup() %>%
@@ -588,7 +589,7 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                     color=Products.and.product.groups))+
   geom_hline(yintercept=0,size=1)+
   geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
-                  aes(label=as.character(Products.and.product.groups)),hjust=0,
+                  aes(label=Products.and.product.groups),hjust=0,
                   direction='y',nudge_x=0.05,size=3,
                   show.legend = F,segment.alpha=0)+
   geom_line(size=2,show.legend=F)+
