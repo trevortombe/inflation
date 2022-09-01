@@ -113,15 +113,15 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                      values=col[1:2])+
   scale_y_continuous(limit=c(120,NA))+
   scale_x_date(labels=date_format("%d\n%b"),
-               date_breaks = '21 days',expand=c(0,0),
-               limit=c(as.Date(start),max(plotdata$date)+40))+
+               date_breaks = '1 month',expand=c(0,0),
+               limit=c(as.Date(start),max(plotdata$date)+60))+
   geom_vline(xintercept=as.Date("2022-03-31"),size=0.75,linetype='dashed')+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
-  annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2.5,
+  annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2,
            label="Alberta Provincial Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
-           label=effect,color=col[3],size=3)+
+           label=effect,color=col[3],size=2)+
   mytheme+
   # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
   #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
@@ -216,15 +216,15 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                      values=col[1:2])+
   scale_y_continuous(limit=c(120,NA))+
   scale_x_date(labels=date_format("%d\n%b"),
-               date_breaks = '21 days',expand=c(0,0),
-               limit=c(as.Date(start),max(plotdata$date)+40))+
+               date_breaks = '1 month',expand=c(0,0),
+               limit=c(as.Date(start),max(plotdata$date)+60))+
   geom_vline(xintercept=as.Date("2022-03-31"),size=0.75,linetype='dashed')+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
-  annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2.5,
+  annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2,
            label="Alberta Provincial Diesel Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.7c/L)  ")+
   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
-           label=effect,color=col[3],size=3)+
+           label=effect,color=col[3],size=2)+
   mytheme+
   # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
   #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
@@ -341,12 +341,12 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                      values=col[1:2])+
   # scale_y_continuous(limit=c(160,NA))+
   scale_x_date(labels=date_format("%d\n%b"),
-               date_breaks = '21 days',
-               limit=c(as.Date(start),max(plotdata$date)+30))+
+               date_breaks = '1 month',
+               limit=c(as.Date(start),max(plotdata$date)+40))+
   geom_vline(xintercept=as.Date("2022-06-30"),size=0.75,linetype='dashed')+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
-  annotate('text',x=as.Date("2022-06-29"),y=162,hjust=1,size=2.5,
+  annotate('text',x=as.Date("2022-06-29"),y=162,hjust=1,size=2,
            label="Provincial Gasoline Tax Lowered 5.7c/L")+
   mytheme+
   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
@@ -356,7 +356,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                size=0.75,color=col[3])+
   annotate('text',x=max(plotdata$date)+6,
            y=mean(filter(plotdata,date==max(date))$val),
-           size=3,color=col[3],
+           size=2,color=col[3],
            label=paste0("  Passthrough\n  Estimate for\n  ",
                         gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),":\n  ",change),hjust=0)+
   annotate('text',x=as.Date("2022-07-05"),y=162,hjust=0,
