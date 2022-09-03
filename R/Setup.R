@@ -3,7 +3,7 @@ rm(list=ls(all=TRUE))
 
 # Install Packages and Load
 packages<-c("scales","zoo","dplyr","gt","testit","data.table",
-            "webshot2","httr","readxl","ggrepel",
+            "webshot","httr","readxl","ggrepel",
             "ggplot2","ggthemes","tidyr","grid","fredr","cansim")
 check.packages <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
@@ -12,6 +12,8 @@ check.packages <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 check.packages(packages)
+install.packages("webshot2")
+require(webshot2)
 fredr_set_key(Sys.getenv("FRED_KEY"))
 
 # Required to save gtables
