@@ -1,169 +1,151 @@
-product,keep_product
-Fresh or frozen beef,1
-Fresh or frozen pork,1
-Other fresh or frozen meat (excluding poultry),1
-Fresh or frozen chicken,1
-Other fresh or frozen poultry,1
-Ham and bacon,1
-Other processed meat,1
-Fresh or frozen fish (including portions and fish sticks),1
-Canned and other preserved fish,1
-Seafood and other marine products,1
-Fresh milk,1
-Butter,1
-Cheese,1
-Ice cream and related products,1
-Other dairy products,1
-Eggs,1
-"Bread, rolls and buns",1
-Cookies and crackers,1
-Other bakery products,1
-Rice and rice-based mixes,1
-Breakfast cereal and other cereal products (excluding baby food),1
-Pasta products,1
-Flour and flour-based mixes,1
-Apples,1
-Oranges,1
-Bananas,1
-Other fresh fruit,1
-Fruit juices,1
-Other preserved fruit and fruit preparations,1
-Nuts and seeds,1
-Potatoes,1
-Tomatoes,1
-Lettuce,1
-Other fresh vegetables,1
-Frozen and dried vegetables,1
-Canned vegetables and other vegetable preparations,1
-Sugar and syrup,1
-Confectionery,1
-Margarine,1
-Other edible fats and oils,1
-Coffee,1
-Tea,1
-Soup,1
-Baby foods,1
-Frozen food preparations,1
-All other food preparations,1
-Non-alcoholic beverages,1
-Food purchased from table-service restaurants,1
-Food purchased from fast food and take-out restaurants,1
-Food purchased from cafeterias and other restaurants,1
-Rent,1
-Tenants' insurance premiums,1
-"Tenants' maintenance, repairs and other expenses",1
-Mortgage interest cost,1
-Homeowners' replacement cost,1
-Property taxes and other special charges,1
-Homeowners' home and mortgage insurance,1
-Homeowners' maintenance and repairs,1
-Other owned accommodation expenses,1
-Electricity,1
-Water,1
-Natural gas,1
-Fuel oil and other fuels,1
-Telephone services,1
-Postal and other communications services,1
-Internet access services,1
-Telephone equipment,1
-Child care services,1
-Housekeeping services,1
-Detergents and soaps (other than personal care),1
-Other household cleaning products,1
-Paper supplies,1
-Plastic and aluminum foil supplies,1
-Pet food and supplies,1
-"Seeds, plants and cut flowers",1
-Other horticultural goods,1
-Other household supplies,1
-Other household services,1
-Financial services,1
-Upholstered furniture,1
-Wooden furniture,1
-Other furniture,1
-Window coverings,1
-Bedding and other household textiles,1
-Cooking appliances,1
-Refrigerators and freezers,1
-Laundry and dishwashing appliances,1
-Other household appliances,1
-"Non-electric kitchen utensils, tableware and cookware",1
-"Household tools (including lawn, garden and snow removal equipment)",1
-Other household equipment,1
-Services related to household furnishings and equipment,1
-Women's clothing,1
-Men's clothing,1
-Children's clothing,1
-Women's footwear (excluding athletic),1
-Men's footwear (excluding athletic),1
-Children's footwear (excluding athletic),1
-Athletic footwear,1
-Clothing accessories,1
-Watches,1
-Jewellery,1
-"Clothing material, notions and services",1
-Purchase of passenger vehicles,1
-Leasing of passenger vehicles,1
-Rental of passenger vehicles,1
-Gasoline,1
-"Passenger vehicle parts, accessories and supplies",1
-Passenger vehicle maintenance and repair services,1
-Passenger vehicle insurance premiums,1
-Passenger vehicle registration fees,1
-Drivers' licences,1
-Parking fees,1
-All other passenger vehicle operating expenses,1
-City bus and subway transportation,1
-Taxi and other local and commuter transportation services,1
-Air transportation,1
-"Rail, highway bus and other inter-city transportation",1
-Prescribed medicines (excluding medicinal cannabis),1
-Medicinal cannabis,1
-Non-prescribed medicines,1
-Eye care goods,1
-Other health care goods,1
-Eye care services,1
-Dental care services,1
-Other health care services,1
-Personal soap,1
-Toiletry items and cosmetics,1
-Oral-hygiene products,1
-Other personal care supplies and equipment,1
-Personal care services,1
-Sporting and exercise equipment,1
-"Toys, games (excluding video games) and hobby supplies",1
-"Computer equipment, software and supplies",1
-Multipurpose digital devices,1
-Photographic equipment and supplies,1
-Other recreational equipment,1
-Recreational services,1
-Purchase of recreational vehicles and outboard motors,1
-"Fuel, parts and accessories for recreational vehicles",1
-"Insurance, licences and other services for recreational vehicles",1
-Audio equipment,1
-Video equipment,1
-Rental of digital media,1
-Purchase of digital media,1
-"Other home entertainment equipment, parts and services",1
-Traveller accommodation,1
-Travel tours,1
-Spectator entertainment (excluding video and audio subscription services),1
-Video and audio subscription services,1
-Use of recreational facilities and services,1
-All other cultural and recreational services,1
-Tuition fees,1
-School textbooks and supplies,1
-"Other lessons, courses and education services",1
-Newspapers,1
-Magazines and periodicals,1
-Books and reading material (excluding textbooks),1
-Beer served in licensed establishments,1
-Wine served in licensed establishments,1
-Liquor served in licensed establishments,1
-Beer purchased from stores,1
-Wine purchased from stores,1
-Liquor purchased from stores,1
-Other alcoholic beverages purchased in stores,1
-Cigarettes,1
-Other tobacco products and smokers' supplies,1
-Recreational cannabis,1
+"","product"
+"1","Fresh or frozen beef"
+"2","Fresh or frozen pork"
+"3","Fresh or frozen chicken"
+"4","Other fresh or frozen poultry"
+"5","Canned and other preserved fish"
+"6","Seafood and other marine products"
+"7","Fresh milk"
+"8","Butter"
+"9","Ice cream and related products"
+"10","Eggs"
+"11","Rice and rice-based mixes"
+"12","Breakfast cereal and other cereal products (excluding baby food)"
+"13","Pasta products"
+"14","Flour and flour-based mixes"
+"15","Apples"
+"16","Oranges"
+"17","Bananas"
+"18","Potatoes"
+"19","Tomatoes"
+"20","Lettuce"
+"21","Canned vegetables and other vegetable preparations"
+"22","Margarine"
+"23","Other edible fats and oils"
+"24","Coffee"
+"25","Tea"
+"26","Soup"
+"27","Baby foods"
+"28","Frozen food preparations"
+"29","Non-alcoholic beverages"
+"30","Rent"
+"31","Tenants' insurance premiums"
+"32","Tenants' maintenance, repairs and other expenses"
+"33","Mortgage interest cost"
+"34","Homeowners' replacement cost"
+"35","Property taxes and other special charges"
+"36","Homeowners' home and mortgage insurance"
+"37","Homeowners' maintenance and repairs"
+"38","Electricity"
+"39","Water"
+"40","Natural gas"
+"41","Fuel oil and other fuels"
+"42","Communications"
+"43","Child care services"
+"44","Housekeeping services"
+"45","Detergents and soaps (other than personal care)"
+"46","Upholstered furniture"
+"47","Wooden furniture"
+"48","Refrigerators and freezers"
+"49","Services related to household furnishings and equipment"
+"50","Children's clothing"
+"51","Women's footwear (excluding athletic)"
+"52","Athletic footwear"
+"53","Clothing material, notions and services"
+"54","Purchase of passenger vehicles"
+"55","Rental of passenger vehicles"
+"56","Gasoline"
+"57","Passenger vehicle maintenance and repair services"
+"58","Passenger vehicle insurance premiums"
+"59","Parking fees"
+"60","All other passenger vehicle operating expenses"
+"61","City bus and subway transportation"
+"62","Taxi and other local and commuter transportation services"
+"63","Air transportation"
+"64","Medicinal and pharmaceutical products"
+"65","Other health care goods"
+"66","Personal soap"
+"67","Toiletry items and cosmetics"
+"68","Oral-hygiene products"
+"69","Personal care services"
+"70","Sporting and exercise equipment"
+"71","Purchase of recreational vehicles and outboard motors"
+"72","Other home entertainment equipment, parts and services"
+"73","Traveller accommodation"
+"74","Travel tours"
+"75","Video and audio subscription services"
+"76","Use of recreational facilities and services"
+"77","Tuition fees"
+"78","Other lessons, courses and education services"
+"79","Newspapers"
+"80","Magazines and periodicals"
+"81","Beer served in licensed establishments"
+"82","Liquor served in licensed establishments"
+"83","Beer purchased from stores"
+"84","Wine purchased from stores"
+"85","Liquor purchased from stores"
+"86","Cigarettes"
+"87","Women's clothing"
+"88","Men's clothing"
+"89","Other fresh or frozen meat (excluding poultry)"
+"90","Ham and bacon"
+"91","Other processed meat"
+"92","Fresh or frozen fish (including portions and fish sticks)"
+"93","Cheese"
+"94","Other dairy products"
+"95","Bread, rolls and buns"
+"96","Cookies and crackers"
+"97","Other bakery products"
+"98","Other fresh fruit"
+"99","Fruit juices"
+"100","Other preserved fruit and fruit preparations"
+"101","Nuts and seeds"
+"102","Other fresh vegetables"
+"103","Frozen and dried vegetables"
+"104","Sugar and syrup"
+"105","Confectionery"
+"106","All other food preparations"
+"107","Food purchased from table-service restaurants"
+"108","Food purchased from fast food and take-out restaurants"
+"109","Other household cleaning products"
+"110","Paper supplies"
+"111","Plastic and aluminum foil supplies"
+"112","Other household goods and services"
+"113","Window coverings"
+"114","Bedding and other household textiles"
+"115","Cooking appliances"
+"116","Laundry and dishwashing appliances"
+"117","Other household appliances"
+"118","Non-electric kitchen utensils, tableware and cookware"
+"119","Household tools (including lawn, garden and snow removal equipment)"
+"120","Men's footwear (excluding athletic)"
+"121","Clothing accessories, watches and jewellery"
+"122","Passenger vehicle parts, accessories and supplies"
+"123","Passenger vehicle registration fees"
+"124","Drivers' licences"
+"125","Rail, highway bus and other inter-city transportation"
+"126","Eye care goods"
+"127","Health care services"
+"128","Other personal care supplies and equipment"
+"129","Toys, games (excluding video games) and hobby supplies"
+"130","Photographic equipment and supplies"
+"131","Recreational services"
+"132","Audio equipment"
+"133","Video equipment"
+"134","Spectator entertainment (excluding video and audio subscription services)"
+"135","Books and reading material (excluding textbooks)"
+"136","Rental of digital media"
+"137","Food purchased from cafeterias and other restaurants"
+"138","Other owned accommodation expenses"
+"139","Other furniture"
+"140","Other household equipment"
+"141","Children's footwear (excluding athletic)"
+"142","Digital computing equipment and devices"
+"143","Other recreational equipment"
+"144","Fuel, parts and accessories for recreational vehicles"
+"145","Insurance, licences and other services for recreational vehicles"
+"146","School textbooks and supplies"
+"147","Wine served in licensed establishments"
+"148","Other tobacco products and smokers' supplies"
+"149","Leasing of passenger vehicles"
+"150","Purchase of digital media"
