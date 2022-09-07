@@ -150,10 +150,7 @@ ggsave("Plots/Expectations.png",width=7,height=4)
 temp<-data %>% 
   filter(GEO=="Canada",Ref_Date>="Jan 1980") %>%
   select(Ref_Date,product=Products.and.product.groups,Value) %>%
-  left_join(
-    product_list,by="product"
-  ) %>%
-  filter(keep_product==1) %>%
+  filter(product %in% product_list$product) %>%
   group_by(product) %>%
   mutate(change=Value/lag(Value,12)-1,
          above=change>0.03) %>%
