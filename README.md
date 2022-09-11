@@ -25,5 +25,3 @@ This repo contains several regularly updated calculations -- such as the recentl
 ---
 
 ![](Plots/gas_tax_ab.png)
-
-![](Plots/Bitcoin.png)
