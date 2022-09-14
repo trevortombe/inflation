@@ -16,8 +16,6 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/ServicesExShelter.png)
 
-![](Plots/PersonalInflation.png)
-
 ![](Plots/BoCPath.png)
 
 ![](Plots/Expectations.png)

@@ -409,103 +409,103 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
        caption="Graph by @trevortombe")
 ggsave("Plots/ChangeFeb2020.png",width=10,height=4)
 
-# Personalized Inflation Rates
-spend_list<-c("Food purchased from stores",
-              "Foor purchased from restaurants",
-              "Rented living quarters",
-              "Owned living quarters",
-              "Water, fuel and electricity for principal accommodation",
-              "Household operations",
-              "Household furnishings and equipment",
-              "Clothing and accessories",
-              "Private transportation",
-              "Public transportation",
-              "Health care",
-              "Personal care",
-              "Recreation",
-              "Education",
-              "Reading materials and other printed matter",
-              "Tobacco products, alcoholic beverages and cannabis for non-medical use")
-spending_income<-get_cansim("11100223") %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-spending_HHtype<-get_cansim("11100224") %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-spending_tenure<-get_cansim("11100225") %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-spending_rural<-get_cansim("11100226") %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-spending_age<-get_cansim("11100227") %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-personal_inf <- function(df){
-  df %>%
-    rename(product=Household.expenditures..summary.level.categories) %>%
-    rename(type=as.character(colnames(df)[26])) %>%
-    filter(Statistic=="Average expenditure per household",
-           product %in% spend_list,GEO=="Canada",
-           Ref_Date==max(Ref_Date)) %>%
-    mutate(product=case_when(
-      product=="Clothing and accessories" ~ "Clothing and footwear",
-      product=="Rented living quarters" ~ "Rented accommodation",
-      product=="Owned living quarters" ~ "Owned accommodation",
-      product=="Water, fuel and electricity for principal accommodation" ~ "Water, fuel and electricity",
-      product=="Reading materials and other printed matter" ~ "Reading material (excluding textbooks)",
-      product=="Tobacco products, alcoholic beverages and cannabis for non-medical use" ~ "Alcoholic beverages, tobacco products and recreational cannabis",
-      TRUE ~ as.character(product))) %>%
-    select(product,type,Value) %>%
-    left_join(
-      decomp_cpi %>%
-        filter(Ref_Date>=max(Ref_Date)-1/12 | Ref_Date==max(Ref_Date)-1) %>%
-        select(Ref_Date,product,change),
-      by='product'
-    ) %>%
-    group_by(Ref_Date,type) %>%
-    mutate(share=Value/sum(Value)) %>%
-    summarise(personal_inflation=sum(change*share)) %>%
-    mutate(personal_inflation=percent(personal_inflation,.1)) %>%
-    spread(Ref_Date,personal_inflation) %>% 
-    select(type,last_col(),contains(as.character(max(decomp_cpi$Ref_Date)-1/12)),everything())
-}
-table_data<-inf_rates %>%
-  filter(Ref_Date>=max(Ref_Date)-1/12 | Ref_Date==max(Ref_Date)-1) %>%
-  mutate(YoY=percent(YoY,.1),row=1) %>%
-  spread(Ref_Date,YoY) %>% 
-  select(last_col(),contains(as.character(max(decomp_cpi$Ref_Date)-1/12)),everything(),-row) %>%
-  rbind(personal_inf(spending_income)[c(3,4),2:4]) %>%
-  rbind(personal_inf(spending_rural)[c(3,8),2:4]) %>%
-  rbind(personal_inf(spending_HHtype)[c(2,5,6),2:4]) %>%
-  rbind(personal_inf(spending_tenure)[c(2,5),2:4]) %>%
-  rbind(personal_inf(spending_age)[c(6,4),2:4])
-table<-data.frame(Group=c("All Households","Highest Income Quintile","Lowest Income Quintile",
-                          "Large Urban Area (>1M)","Rural Area","Couple with Children",
-                          "Long-Parent Household","One-Person Household",
-                          "Homeowner","Renter","Head Age 30 and Under","Head Age 65 and Over")) %>%
-  cbind(table_data) %>% 
-  gt() %>%
-  tab_spanner(
-    label="Year-over-year change as of...",
-    columns=c(colnames(table_data))
-  ) %>%
-  cols_align(align = "center") %>%
-  tab_header(
-    title=md("**Household Type-Specific Inflation Rates in Canada**")
-  ) %>%
-  tab_source_note(gt::html(paste("<p style='font-size:12px'>Source: Own calculations from Statistics Canada data tables 18-10-0004 and 11-10-0223 through 11-10-0227. Based on 2019 SHS expenditure shares. Experimental estimates.",
-                                 "Table and calculations by @trevortombe. </p>"))) %>%
-  cols_width(starts_with('Group')~px(350),
-             everything() ~px(85)) %>%
-  cols_label(Group="Household Type") %>%
-  tab_options(data_row.padding = px(1))
-gtsave(table,'Plots/PersonalInflation.png')
+# Personalized Inflation Rates (commented out since doesn't run well on server)
+# spend_list<-c("Food purchased from stores",
+#               "Foor purchased from restaurants",
+#               "Rented living quarters",
+#               "Owned living quarters",
+#               "Water, fuel and electricity for principal accommodation",
+#               "Household operations",
+#               "Household furnishings and equipment",
+#               "Clothing and accessories",
+#               "Private transportation",
+#               "Public transportation",
+#               "Health care",
+#               "Personal care",
+#               "Recreation",
+#               "Education",
+#               "Reading materials and other printed matter",
+#               "Tobacco products, alcoholic beverages and cannabis for non-medical use")
+# spending_income<-get_cansim("11100223") %>%
+#   rename(Value=VALUE) %>%
+#   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+#   rename_all(list(~make.names(.)))
+# spending_HHtype<-get_cansim("11100224") %>%
+#   rename(Value=VALUE) %>%
+#   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+#   rename_all(list(~make.names(.)))
+# spending_tenure<-get_cansim("11100225") %>%
+#   rename(Value=VALUE) %>%
+#   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+#   rename_all(list(~make.names(.)))
+# spending_rural<-get_cansim("11100226") %>%
+#   rename(Value=VALUE) %>%
+#   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+#   rename_all(list(~make.names(.)))
+# spending_age<-get_cansim("11100227") %>%
+#   rename(Value=VALUE) %>%
+#   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+#   rename_all(list(~make.names(.)))
+# personal_inf <- function(df){
+#   df %>%
+#     rename(product=Household.expenditures..summary.level.categories) %>%
+#     rename(type=as.character(colnames(df)[26])) %>%
+#     filter(Statistic=="Average expenditure per household",
+#            product %in% spend_list,GEO=="Canada",
+#            Ref_Date==max(Ref_Date)) %>%
+#     mutate(product=case_when(
+#       product=="Clothing and accessories" ~ "Clothing and footwear",
+#       product=="Rented living quarters" ~ "Rented accommodation",
+#       product=="Owned living quarters" ~ "Owned accommodation",
+#       product=="Water, fuel and electricity for principal accommodation" ~ "Water, fuel and electricity",
+#       product=="Reading materials and other printed matter" ~ "Reading material (excluding textbooks)",
+#       product=="Tobacco products, alcoholic beverages and cannabis for non-medical use" ~ "Alcoholic beverages, tobacco products and recreational cannabis",
+#       TRUE ~ as.character(product))) %>%
+#     select(product,type,Value) %>%
+#     left_join(
+#       decomp_cpi %>%
+#         filter(Ref_Date>=max(Ref_Date)-1/12 | Ref_Date==max(Ref_Date)-1) %>%
+#         select(Ref_Date,product,change),
+#       by='product'
+#     ) %>%
+#     group_by(Ref_Date,type) %>%
+#     mutate(share=Value/sum(Value)) %>%
+#     summarise(personal_inflation=sum(change*share)) %>%
+#     mutate(personal_inflation=percent(personal_inflation,.1)) %>%
+#     spread(Ref_Date,personal_inflation) %>% 
+#     select(type,last_col(),contains(as.character(max(decomp_cpi$Ref_Date)-1/12)),everything())
+# }
+# table_data<-inf_rates %>%
+#   filter(Ref_Date>=max(Ref_Date)-1/12 | Ref_Date==max(Ref_Date)-1) %>%
+#   mutate(YoY=percent(YoY,.1),row=1) %>%
+#   spread(Ref_Date,YoY) %>% 
+#   select(last_col(),contains(as.character(max(decomp_cpi$Ref_Date)-1/12)),everything(),-row) %>%
+#   rbind(personal_inf(spending_income)[c(3,4),2:4]) %>%
+#   rbind(personal_inf(spending_rural)[c(3,8),2:4]) %>%
+#   rbind(personal_inf(spending_HHtype)[c(2,5,6),2:4]) %>%
+#   rbind(personal_inf(spending_tenure)[c(2,5),2:4]) %>%
+#   rbind(personal_inf(spending_age)[c(6,4),2:4])
+# table<-data.frame(Group=c("All Households","Highest Income Quintile","Lowest Income Quintile",
+#                           "Large Urban Area (>1M)","Rural Area","Couple with Children",
+#                           "Long-Parent Household","One-Person Household",
+#                           "Homeowner","Renter","Head Age 30 and Under","Head Age 65 and Over")) %>%
+#   cbind(table_data) %>% 
+#   gt() %>%
+#   tab_spanner(
+#     label="Year-over-year change as of...",
+#     columns=c(colnames(table_data))
+#   ) %>%
+#   cols_align(align = "center") %>%
+#   tab_header(
+#     title=md("**Household Type-Specific Inflation Rates in Canada**")
+#   ) %>%
+#   tab_source_note(gt::html(paste("<p style='font-size:12px'>Source: Own calculations from Statistics Canada data tables 18-10-0004 and 11-10-0223 through 11-10-0227. Based on 2019 SHS expenditure shares. Experimental estimates.",
+#                                  "Table and calculations by @trevortombe. </p>"))) %>%
+#   cols_width(starts_with('Group')~px(350),
+#              everything() ~px(85)) %>%
+#   cols_label(Group="Household Type") %>%
+#   tab_options(data_row.padding = px(1))
+# gtsave(table,'Plots/PersonalInflation.png')
 
 # All items excluding whatever you want
 plotdata<-decomp_cpi %>%
