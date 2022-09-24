@@ -1,151 +1,151 @@
-"","product"
-"1","Fresh or frozen beef"
-"2","Fresh or frozen pork"
-"3","Fresh or frozen chicken"
-"4","Other fresh or frozen poultry"
-"5","Canned and other preserved fish"
-"6","Seafood and other marine products"
-"7","Fresh milk"
-"8","Butter"
-"9","Ice cream and related products"
-"10","Eggs"
-"11","Rice and rice-based mixes"
-"12","Breakfast cereal and other cereal products (excluding baby food)"
-"13","Pasta products"
-"14","Flour and flour-based mixes"
-"15","Apples"
-"16","Oranges"
-"17","Bananas"
-"18","Potatoes"
-"19","Tomatoes"
-"20","Lettuce"
-"21","Canned vegetables and other vegetable preparations"
-"22","Margarine"
-"23","Other edible fats and oils"
-"24","Coffee"
-"25","Tea"
-"26","Soup"
-"27","Baby foods"
-"28","Frozen food preparations"
-"29","Non-alcoholic beverages"
-"30","Rent"
-"31","Tenants' insurance premiums"
-"32","Tenants' maintenance, repairs and other expenses"
-"33","Mortgage interest cost"
-"34","Homeowners' replacement cost"
-"35","Property taxes and other special charges"
-"36","Homeowners' home and mortgage insurance"
-"37","Homeowners' maintenance and repairs"
-"38","Electricity"
-"39","Water"
-"40","Natural gas"
-"41","Fuel oil and other fuels"
-"42","Communications"
-"43","Child care services"
-"44","Housekeeping services"
-"45","Detergents and soaps (other than personal care)"
-"46","Upholstered furniture"
-"47","Wooden furniture"
-"48","Refrigerators and freezers"
-"49","Services related to household furnishings and equipment"
-"50","Children's clothing"
-"51","Women's footwear (excluding athletic)"
-"52","Athletic footwear"
-"53","Clothing material, notions and services"
-"54","Purchase of passenger vehicles"
-"55","Rental of passenger vehicles"
-"56","Gasoline"
-"57","Passenger vehicle maintenance and repair services"
-"58","Passenger vehicle insurance premiums"
-"59","Parking fees"
-"60","All other passenger vehicle operating expenses"
-"61","City bus and subway transportation"
-"62","Taxi and other local and commuter transportation services"
-"63","Air transportation"
-"64","Medicinal and pharmaceutical products"
-"65","Other health care goods"
-"66","Personal soap"
-"67","Toiletry items and cosmetics"
-"68","Oral-hygiene products"
-"69","Personal care services"
-"70","Sporting and exercise equipment"
-"71","Purchase of recreational vehicles and outboard motors"
-"72","Other home entertainment equipment, parts and services"
-"73","Traveller accommodation"
-"74","Travel tours"
-"75","Video and audio subscription services"
-"76","Use of recreational facilities and services"
-"77","Tuition fees"
-"78","Other lessons, courses and education services"
-"79","Newspapers"
-"80","Magazines and periodicals"
-"81","Beer served in licensed establishments"
-"82","Liquor served in licensed establishments"
-"83","Beer purchased from stores"
-"84","Wine purchased from stores"
-"85","Liquor purchased from stores"
-"86","Cigarettes"
-"87","Women's clothing"
-"88","Men's clothing"
-"89","Other fresh or frozen meat (excluding poultry)"
-"90","Ham and bacon"
-"91","Other processed meat"
-"92","Fresh or frozen fish (including portions and fish sticks)"
-"93","Cheese"
-"94","Other dairy products"
-"95","Bread, rolls and buns"
-"96","Cookies and crackers"
-"97","Other bakery products"
-"98","Other fresh fruit"
-"99","Fruit juices"
-"100","Other preserved fruit and fruit preparations"
-"101","Nuts and seeds"
-"102","Other fresh vegetables"
-"103","Frozen and dried vegetables"
-"104","Sugar and syrup"
-"105","Confectionery"
-"106","All other food preparations"
-"107","Food purchased from table-service restaurants"
-"108","Food purchased from fast food and take-out restaurants"
-"109","Other household cleaning products"
-"110","Paper supplies"
-"111","Plastic and aluminum foil supplies"
-"112","Other household goods and services"
-"113","Window coverings"
-"114","Bedding and other household textiles"
-"115","Cooking appliances"
-"116","Laundry and dishwashing appliances"
-"117","Other household appliances"
-"118","Non-electric kitchen utensils, tableware and cookware"
-"119","Household tools (including lawn, garden and snow removal equipment)"
-"120","Men's footwear (excluding athletic)"
-"121","Clothing accessories, watches and jewellery"
-"122","Passenger vehicle parts, accessories and supplies"
-"123","Passenger vehicle registration fees"
-"124","Drivers' licences"
-"125","Rail, highway bus and other inter-city transportation"
-"126","Eye care goods"
-"127","Health care services"
-"128","Other personal care supplies and equipment"
-"129","Toys, games (excluding video games) and hobby supplies"
-"130","Photographic equipment and supplies"
-"131","Recreational services"
-"132","Audio equipment"
-"133","Video equipment"
-"134","Spectator entertainment (excluding video and audio subscription services)"
-"135","Books and reading material (excluding textbooks)"
-"136","Rental of digital media"
-"137","Food purchased from cafeterias and other restaurants"
-"138","Other owned accommodation expenses"
-"139","Other furniture"
-"140","Other household equipment"
-"141","Children's footwear (excluding athletic)"
-"142","Digital computing equipment and devices"
-"143","Other recreational equipment"
-"144","Fuel, parts and accessories for recreational vehicles"
-"145","Insurance, licences and other services for recreational vehicles"
-"146","School textbooks and supplies"
-"147","Wine served in licensed establishments"
-"148","Other tobacco products and smokers' supplies"
-"149","Leasing of passenger vehicles"
-"150","Purchase of digital media"
+product_id,product,product_code_approx,category
+1,Fresh or frozen beef,MPG311601,Food (Groceries)
+2,Fresh or frozen pork,MPG311602,Food (Groceries)
+3,Fresh or frozen chicken,MPG311603,Food (Groceries)
+4,Other fresh or frozen poultry,MPG311603,Food (Groceries)
+5,Canned and other preserved fish,MPG311700,Food (Groceries)
+6,Seafood and other marine products,MPG311700,Food (Groceries)
+7,Fresh milk,MPG311501,Food (Groceries)
+8,Butter,MPG311503,Food (Groceries)
+9,Ice cream and related products,MPG311504,Food (Groceries)
+10,Eggs,MPG112004,Food (Groceries)
+11,Rice and rice-based mixes,MPG311208,Food (Groceries)
+12,Breakfast cereal and other cereal products (excluding baby food),MPG311203,Food (Groceries)
+13,Pasta products,MPG311803,Food (Groceries)
+14,Flour and flour-based mixes,MPG311803,Food (Groceries)
+15,Apples,MPG111A10,Food (Groceries)
+16,Oranges,MPG111A10,Food (Groceries)
+17,Bananas,MPG111A10,Food (Groceries)
+18,Potatoes,MPG111A05,Food (Groceries)
+19,Tomatoes,MPG111A08,Food (Groceries)
+20,Lettuce,MPG111A08,Food (Groceries)
+21,Canned vegetables and other vegetable preparations,MPG311402,Food (Groceries)
+22,Margarine,MPG311202,Food (Groceries)
+23,Other edible fats and oils,MPG311202,Food (Groceries)
+24,Coffee,MPG311902,Food (Groceries)
+25,Tea,MPG311902,Food (Groceries)
+26,Soup,MPG311909,Food (Groceries)
+27,Baby foods,MPG311909,Food (Groceries)
+28,Frozen food preparations,MPG311402,Food (Groceries)
+29,Non-alcoholic beverages,MPG312110,Food (Groceries)
+30,Rent,MPS531101,
+31,Tenants' insurance premiums,MPS524104,
+32,"Tenants' maintenance, repairs and other expenses",MPS561700,
+33,Mortgage interest cost,,
+34,Homeowners' replacement cost,,
+35,Property taxes and other special charges,,
+36,Homeowners' home and mortgage insurance,,
+37,Homeowners' maintenance and repairs,MPS561700,
+38,Electricity,ENE221100,Energy
+39,Water,ENE221303,
+40,Natural gas,ENE211102,Energy
+41,Fuel oil and other fuels,ENE324113,Energy
+42,Communications,MPG23C400,
+43,Child care services,MPS624001,
+44,Housekeeping services,,
+45,Detergents and soaps (other than personal care),MPG325601,
+46,Upholstered furniture,MPG337102,
+47,Wooden furniture,MPG337102,
+48,Refrigerators and freezers,MPG335204,
+49,Services related to household furnishings and equipment,MPS814002,
+50,Children's clothing,MPG31B001,
+51,Women's footwear (excluding athletic),MPG31B005,
+52,Athletic footwear,MPG31B005,
+53,"Clothing material, notions and services",MPG31B003,
+54,Purchase of passenger vehicles,MPG336112,
+55,Rental of passenger vehicles,MPS532100,
+56,Gasoline,ENE324111,Energy
+57,Passenger vehicle maintenance and repair services,MPS811100,
+58,Passenger vehicle insurance premiums,MPS524103,
+59,Parking fees,MPS812A02,
+60,All other passenger vehicle operating expenses,,
+61,City bus and subway transportation,MPS485100,
+62,Taxi and other local and commuter transportation services,MPS485300,
+63,Air transportation,MPS488001,
+64,Medicinal and pharmaceutical products,MPG325400,
+65,Other health care goods,MPG334A05,
+66,Personal soap,MPG325602,
+67,Toiletry items and cosmetics,MPG325602,
+68,Oral-hygiene products,MPG325602,
+69,Personal care services,MPS812A09,
+70,Sporting and exercise equipment,MPG339902,
+71,Purchase of recreational vehicles and outboard motors,MPG336602,
+72,"Other home entertainment equipment, parts and services",MPG334A01,
+73,Traveller accommodation,MPS721100,
+74,Travel tours,MPS48A004,
+75,Video and audio subscription services,MPS517003,
+76,Use of recreational facilities and services,MPS713A00,
+77,Tuition fees,MPS610003,
+78,"Other lessons, courses and education services",NGS611A00,
+79,Newspapers,MPG511111,
+80,Magazines and periodicals,MPG5111A1,
+81,Beer served in licensed establishments,MPG312120,
+82,Liquor served in licensed establishments,MPG3121A2,
+83,Beer purchased from stores,MPG312120,
+84,Wine purchased from stores,MPG3121A1,
+85,Liquor purchased from stores,MPG3121A2,
+86,Cigarettes,MPG312202,
+87,Women's clothing,MPG31B001,
+88,Men's clothing,MPG31B001,
+89,Other fresh or frozen meat (excluding poultry),MPG311605,Food (Groceries)
+90,Ham and bacon,MPG311605,Food (Groceries)
+91,Other processed meat,MPG311605,Food (Groceries)
+92,Fresh or frozen fish (including portions and fish sticks),MPG311700,Food (Groceries)
+93,Cheese,MPG311502,Food (Groceries)
+94,Other dairy products,MPG311503,Food (Groceries)
+95,"Bread, rolls and buns",MPG311801,Food (Groceries)
+96,Cookies and crackers,MPG311802,Food (Groceries)
+97,Other bakery products,MPG311802,Food (Groceries)
+98,Other fresh fruit,MPG111A10,Food (Groceries)
+99,Fruit juices,MPG311401,Food (Groceries)
+100,Other preserved fruit and fruit preparations,MPG311402,Food (Groceries)
+101,Nuts and seeds,MPG111A10,Food (Groceries)
+102,Other fresh vegetables,MPG111A08,Food (Groceries)
+103,Frozen and dried vegetables,MPG311402,Food (Groceries)
+104,Sugar and syrup,MPG311301,Food (Groceries)
+105,Confectionery,MPG311303,Food (Groceries)
+106,All other food preparations,MPG311909,Food (Groceries)
+107,Food purchased from table-service restaurants,,
+108,Food purchased from fast food and take-out restaurants,,
+109,Other household cleaning products,,
+110,Paper supplies,MPG322102,
+111,Plastic and aluminum foil supplies,MPG326109,
+112,Other household goods and services,,
+113,Window coverings,MPG337902,
+114,Bedding and other household textiles,MPG337901,
+115,Cooking appliances,MPG335204,
+116,Laundry and dishwashing appliances,MPG335204,
+117,Other household appliances,MPG335204,
+118,"Non-electric kitchen utensils, tableware and cookware",MPG332A01,
+119,"Household tools (including lawn, garden and snow removal equipment)",MPG333101,
+120,Men's footwear (excluding athletic),MPG31B005,
+121,"Clothing accessories, watches and jewellery",MPG31B003,
+122,"Passenger vehicle parts, accessories and supplies",MPG326107,
+123,Passenger vehicle registration fees,MPS524103,
+124,Drivers' licences,MPS524103,
+125,"Rail, highway bus and other inter-city transportation",MPS48A001,
+126,Eye care goods,,
+127,Health care services,,
+128,Other personal care supplies and equipment,MPG325602,
+129,"Toys, games (excluding video games) and hobby supplies",MPG339903,
+130,Photographic equipment and supplies,MPG334A01,
+131,Recreational services,MPS713A00,
+132,Audio equipment,MPG334A01,
+133,Video equipment,MPG334A01,
+134,Spectator entertainment (excluding video and audio subscription services),MPS71A003,
+135,Books and reading material (excluding textbooks),MPG5111A2,
+136,Rental of digital media,MPS532A09,
+137,Food purchased from cafeterias and other restaurants,,
+138,Other owned accommodation expenses,,Owned accommodation
+139,Other furniture,MPG337102,
+140,Other household equipment,MPG337102,
+141,Children's footwear (excluding athletic),MPG31B005,
+142,Digital computing equipment and devices,MPG334100,
+143,Other recreational equipment,MPG334209,
+144,"Fuel, parts and accessories for recreational vehicles",ENE324111,Energy
+145,"Insurance, licences and other services for recreational vehicles",MPS524103,
+146,School textbooks and supplies,MPG5111A2,
+147,Wine served in licensed establishments,MPG3121A1,
+148,Other tobacco products and smokers' supplies,MPG312202,
+149,Leasing of passenger vehicles,MPS532100,
+150,Purchase of digital media,MPS5121A1,

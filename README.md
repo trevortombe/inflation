@@ -10,6 +10,8 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/ByProduct.png)
 
+![](Plots/ChangePriorMonth.png)
+
 ![](Plots/ChangeFeb2020.png)
 
 ![](Plots/ProductShare3Plus.png)

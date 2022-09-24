@@ -30,7 +30,7 @@ yields<-get_cansim('10100139') %>%
   rename_all(list(~make.names(.)))
 
 # Product List (Manually Created)
-product_list<-read.csv("R/cpi_products.csv")
+product_list<-read.csv("R/cpi_products.csv",stringsAsFactors = F)
 
 # Headline Inflation Rate (Used in the UpdatePlots.R)
 inf_rates<-data %>%
@@ -408,6 +408,115 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
        caption="Graph by @trevortombe")
 ggsave("Plots/ChangeFeb2020.png",width=10,height=4)
+
+# Top Contributors to Changes since Previous Month
+contributor_list<-product_list %>%
+  mutate(product=ifelse(category=="",product,category)) %>%
+  select(product) %>% distinct()
+top_contrib<-decomp_cpi %>% 
+  filter(product %in% contributor_list$product) %>%
+  group_by(product) %>%
+  mutate(change_contrib=contrib-lag(contrib,1),
+         change_cpi=cpi-lag(cpi,1)) %>%
+  ungroup() %>%
+  filter(Ref_Date==max(Ref_Date)) %>%
+  select(Ref_Date,product,contrib,cpi,change_contrib,change_cpi) %>%
+  arrange(-abs(change_contrib)) %>%
+  mutate(cum=cumsum(change_contrib))
+time_age=max(data$Ref_Date)-(max(data$Ref_Date)-1/12)
+temp<-decomp_cpi %>%
+  filter(Ref_Date>=max(Ref_Date)-time_age) %>%
+  group_by(product) %>%
+  mutate(change=contrib-contrib[1],
+         total=cpi-cpi[1],
+         share=change/total) %>%
+  ungroup() %>%
+  filter(Ref_Date==max(Ref_Date)) %>%
+  select(Ref_Date,product,change,total,share) %>%
+  left_join(product_list)
+plotdata<-temp %>%
+  filter(product %in% filter(top_contrib,row_number()<=5)$product) %>%
+  group_by(Ref_Date) %>%
+  mutate(included=sum(change),
+         `All Other Items`=total-included) %>%
+  select(Ref_Date,product,change,`All Other Items`,total) %>%
+  spread(product,change) %>%
+  gather(product,change,-Ref_Date,-total) %>%
+  mutate(product=ifelse(product %in% c("Purchase of recreational vehicles and outboard motors",
+                                       "Purchase of passenger vehicles",
+                                       "Purchase and leasing of passenger vehicles"),
+                        "New\nvehicles",product)) %>%
+  group_by(Ref_Date,product) %>%
+  summarise(change=sum(change)) %>%
+  ungroup() %>%
+  filter(Ref_Date>="Jan 2018") %>%
+  mutate(product=case_when(
+    product=="Food purchased from stores" ~ "Food\n(Groceries)",
+    product=="All Other Items" ~ "Everything\nElse",
+    product=="Traveller accommodation" ~ "Hotels",
+    product=="Air transportation" ~ "Flights",
+    product=="Water, fuel and electricity" ~ "Water\nFuel\nElectricity",
+    product=="Mortgage interest cost" ~ "Mortgage\nInterest",
+    product=="Household furnishings and equipment" ~ "Household\nFurnishings\nand Equip.",
+    product=="Owned accommodation" ~ "Owned\nAccommodation",
+    product=="Homeowners' replacement cost" ~ "Homeowners'\ndepreciation",
+    TRUE ~ product
+  )) %>%
+  select(type=product,value=change) %>%
+  rbind(
+    data.frame(
+      type=as.character(c(max(decomp_cpi$Ref_Date)-time_age,max(decomp_cpi$Ref_Date))),
+      value=c(filter(inf_rates,Ref_Date==max(inf_rates$Ref_Date)-time_age)$YoY,
+              filter(inf_rates,Ref_Date==max(inf_rates$Ref_Date))$YoY)
+    )
+  ) %>%
+  arrange(-abs(value)) %>%
+  mutate(id=row_number(),
+         id=ifelse(type==as.character(max(inf_rates$Ref_Date)-time_age),0.5,row_number()),
+         id=ifelse(type=="Everything\nElse",98,id),
+         id=ifelse(type==as.character(max(inf_rates$Ref_Date)),99,id)) %>%
+  arrange(id) %>%
+  mutate(type=factor(type,levels=type),
+         id=seq_along(value),
+         sign=ifelse(value>0,"in","out"),
+         sign=ifelse(id==n(),"net",sign),
+         sign=ifelse(id==1,"first",sign),
+         end=cumsum(value),
+         end=ifelse(id==n(),0,end),
+         start=ifelse(id>1,lag(end,1),0))
+ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
+         mutate(id=id-1))+
+  geom_segment(x=-0.5,xend=0.5,
+               y=plotdata[1,]$value,yend=plotdata[1,]$value,size=2,
+               color=col[2])+
+  geom_segment(x=dim(plotdata)[1]-1-0.5,xend=dim(plotdata)[1]-1+0.5,
+               y=plotdata[dim(plotdata)[1],]$value,
+               yend=plotdata[dim(plotdata)[1],]$value,size=2,color=col[2])+
+  geom_rect(aes(x=type,xmin = id - 0.4, xmax = id + 0.4,
+                ymin=end,ymax=start,fill=sign),show.legend = F)+
+  annotate('text',x=0,y=plotdata[1,]$value,
+           vjust=-0.5,color=col[2],fontface='bold',
+           label=paste0(plotdata[1,]$type,": ",
+                        percent(plotdata[1,]$value,0.1)))+
+  annotate('text',x=dim(plotdata)[1]-1,
+           y=plotdata[dim(plotdata)[1],]$value,
+           vjust=1.5,color=col[2],fontface='bold',
+           label=paste0(plotdata[dim(plotdata)[1],]$type,": ",
+                        percent(plotdata[dim(plotdata)[1],]$value,0.1)))+
+  coord_cartesian(xlim=c(0,dim(plotdata)[1]-1))+
+  geom_segment(data=plotdata %>% filter(sign!="net",sign!='first') %>%
+                 mutate(id=id-1),
+               aes(x=id+0.45,xend=id+0.45,y=start,yend=end),
+               size=0.75,arrow=arrow(type="closed",length=unit(0.15,"cm")))+
+  mytheme+
+  scale_y_continuous(breaks=pretty_breaks(n=6),label=percent_format(accuracy=0.1),
+                     limit=c(min(plotdata[1,]$value,plotdata[dim(plotdata)[1],]$value)-0.001,
+                             max(plotdata[1,]$value,plotdata[dim(plotdata)[1],]$value)+0.001))+
+  labs(x="",y="Percentage Points",
+       title="Contributions to Changes in Canada's Inflation Rate",
+       subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
+       caption="Graph by @trevortombe")
+ggsave("Plots/ChangePriorMonth.png",width=10,height=4)
 
 # Personalized Inflation Rates (commented out since doesn't run well on server)
 # spend_list<-c("Food purchased from stores",
