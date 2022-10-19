@@ -510,8 +510,8 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
                size=0.75,arrow=arrow(type="closed",length=unit(0.15,"cm")))+
   mytheme+
   scale_y_continuous(breaks=pretty_breaks(n=6),label=percent_format(accuracy=0.1),
-                     limit=c(min(plotdata[1,]$value,plotdata[dim(plotdata)[1],]$value)-0.001,
-                             max(plotdata[1,]$value,plotdata[dim(plotdata)[1],]$value)+0.001))+
+                     limit=c(min(plotdata[1:dim(plotdata)[1]-1,]$end)-0.001,
+                             max(plotdata[1:dim(plotdata)[1]-1,]$end)+0.001))+
   labs(x="",y="Percentage Points",
        title="Contributions to Changes in Canada's Inflation Rate",
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
