@@ -11,7 +11,7 @@ jobs:
       FRED_KEY: ${{ secrets.FRED_KEY }}
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@master
+      - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
       - name: Run R script
         run: Rscript 'R/UpdatePlots.R'
