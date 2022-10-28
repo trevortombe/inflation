@@ -4,6 +4,10 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/CoreInflation.png)
 
+![](Plots/MedianTrim.png)
+
+![](Plots/MedianTrim_3mo.png)
+
 ![](Plots/EnergyShelterEffect.png)
 
 ![](Plots/MainDecomposition.png)

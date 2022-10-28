@@ -75,6 +75,28 @@ link_months<-data.frame(
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
 
+# The Bank of Canada Preferred Core Measures Product-Level Data
+data_sa<-read_excel("../Dropbox/Tweets Data/R/Core_Measures_Inputs_External_E&F.xlsx",
+                    sheet="Indexes_SA")
+colnames(data_sa)[1]<-"product"
+colnames(data_sa)[2]<-"product_fr"
+indexes_sa<-data_sa %>%
+  select(-product_fr) %>%
+  filter(!is.na(product),!grepl("Source: Statistics Canada",product)) %>%
+  gather(date,index,-product) %>%
+  mutate(date=gsub("I_SA_","",date),
+         date=as.yearmon(date,"%Y%m"))
+data_w<-read_excel("../Dropbox/Tweets Data/R/Core_Measures_Inputs_External_E&F.xlsx",
+                   sheet="Weights")
+colnames(data_w)[1]<-"product"
+colnames(data_w)[2]<-"product_fr"
+weights<-data_w %>%
+  select(-product_fr) %>%
+  filter(!is.na(product),!grepl("Source: Statistics Canada",product)) %>%
+  gather(date,w,-product) %>%
+  mutate(date=gsub("wght_","",date),
+         date=as.yearmon(date,"%Y%m"))
+
 #############################
 # Generate the Plot Updates #
 #############################
@@ -708,3 +730,72 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
 Source: Own calculations from Statistics Canada data table 18-10-0006.",
        caption="Graph by @trevortombe")
 ggsave("Plots/ByProduct.png",width=8,height=4)
+
+# Bank of Canada Preferred Measures (Median and Trim), Monthly
+CPImedian<-indexes_sa %>%
+  left_join(weights,by=c("date","product")) %>%
+  filter(product!="Consumer Price Index (CPI), all-items excluding the effect of indirect taxes") %>%
+  group_by(product) %>%
+  mutate(change=index/lag(index,1)) %>%
+  arrange(date,change) %>%
+  group_by(date) %>%
+  mutate(cum_w=cumsum(w)) %>%
+  filter(cum_w>=50 & lag(cum_w,1)<50) # this is the StatCan approach, not exactly median
+CPItrim<-indexes_sa %>%
+  left_join(weights,by=c("date","product")) %>%
+  filter(product!="Consumer Price Index (CPI), all-items excluding the effect of indirect taxes") %>%
+  group_by(product) %>%
+  mutate(change=index/lag(index,1)) %>%
+  arrange(date,change) %>%
+  group_by(date) %>%
+  mutate(cum_w=cumsum(w),
+         trim_w=ifelse(cum_w<20 | cum_w>80,0,w),
+         trim_w=ifelse(cum_w>20 & lag(cum_w<20),cum_w-20,trim_w),
+         trim_w=ifelse(cum_w>80 & lag(cum_w<80),80-lag(cum_w,1),trim_w)) %>% # the StatCan approach
+  filter(trim_w!=0) %>%
+  summarise(change=weighted.mean(change,trim_w))
+plotdata<-CPImedian %>%
+  select(date,CPImedian=change) %>%
+  left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
+  filter(date>="Jan 2009") %>%
+  mutate(CPImedian=CPImedian^12-1,
+         CPItrim=CPItrim^12-1) %>%
+  select(date,CPImedian,CPItrim) %>%
+  gather(type,rate,-date)
+ggplot(plotdata,aes(date,rate,group=type,color=type))+
+  annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
+  annotate('text',x=min(plotdata$date),y=0.035,label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
+  geom_line(size=1.5)+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
+  scale_x_continuous(breaks=pretty_breaks(5))+
+  labs(title="Monthly Change in the Bank of Canada's Core Inflation Measures",
+       subtitle="Reflects the month-over-month annualized change in CPI-median and CPI-trim",
+       caption='Source: own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
+       x="",y="Percent")
+ggsave("Plots/MedianTrim.png",width=8,height=4)
+
+# Bank of Canada Preferred Measures (Median and Trim), 3-month moving average
+plotdata<-CPImedian %>%
+  select(date,CPImedian=change) %>%
+  left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
+  filter(date>="Jan 2009") %>%
+  select(date,CPImedian,CPItrim) %>%
+  gather(type,rate,-date) %>%
+  group_by(type) %>%
+  mutate(rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
+ggplot(plotdata %>% filter(date>="Jan 2020"),aes(date,rate,group=type,color=type))+
+  annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
+  annotate('text',x=-Inf,y=0.035,hjust=0,
+           label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
+  geom_line(size=2)+
+  mytheme+
+  scale_y_continuous(label=percent)+
+  scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
+  scale_x_continuous(breaks=pretty_breaks(3))+
+  labs(title="3-Month Average Annual Change in the Bank of Canada's Core Inflation Measures",
+       subtitle="Reflects the 3-month average annualized change in CPI-median and CPI-trim",
+       caption='Source: own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
+       x="",y="Percent")
+ggsave("Plots/MedianTrim_3mo.png",width=8,height=4)
