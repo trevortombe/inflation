@@ -76,7 +76,7 @@ link_months<-data.frame(
   mutate(link_month=min(Ref_Date)) %>% ungroup()
 
 # The Bank of Canada Preferred Core Measures Product-Level Data
-data_sa<-read_excel("../Dropbox/Tweets Data/R/Core_Measures_Inputs_External_E&F.xlsx",
+data_sa<-read_excel("Data/Core_Measures_Inputs_External_E&F.xlsx",
                     sheet="Indexes_SA")
 colnames(data_sa)[1]<-"product"
 colnames(data_sa)[2]<-"product_fr"
@@ -86,7 +86,7 @@ indexes_sa<-data_sa %>%
   gather(date,index,-product) %>%
   mutate(date=gsub("I_SA_","",date),
          date=as.yearmon(date,"%Y%m"))
-data_w<-read_excel("../Dropbox/Tweets Data/R/Core_Measures_Inputs_External_E&F.xlsx",
+data_w<-read_excel("Data/Core_Measures_Inputs_External_E&F.xlsx",
                    sheet="Weights")
 colnames(data_w)[1]<-"product"
 colnames(data_w)[2]<-"product_fr"
