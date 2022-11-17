@@ -11,18 +11,19 @@ plotdata<-bitcoin %>%
     filter(date>="2022-03-01")
 ggplot(plotdata,aes(date,value))+
   geom_line(size=2,color=col[1])+
+  geom_hline(yintercept=0,size=1)+
   geom_point(data=filter(plotdata,date=="2022-03-28"),
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
   geom_point(data=filter(plotdata,date==max(date)),
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
-  annotate('text',x=as.Date("2022-04-11"),y=50000,hjust=0,color=col[1],size=3,
+  annotate('text',x=as.Date("2022-05-01"),y=50000,hjust=0,color=col[1],size=2.5,
            label="Pierre Poilievre says: \"opt out\" of\ninflation by buying crypto")+
-  annotate('text',x=max(plotdata$date)+3,y=filter(plotdata,date==max(date))$value+500,
+  annotate('text',x=max(plotdata$date)+5,y=filter(plotdata,date==max(date))$value+500,
            hjust=0,color=col[1],vjust=0,size=3,
-           label=paste("Down",percent(abs(filter(plotdata,date==max(date))$value/filter(plotdata,date==as.Date("2022-03-28"))$value-1))))+
-  geom_segment(x=as.Date("2022-04-10"),y=50000,
-               xend=as.Date("2022-03-29"),yend=48500,
-               color=col[1],size=0.75,arrow=arrow(length=unit(1.5,'mm')))+
+           label=paste("Down\n",percent(abs(filter(plotdata,date==max(date))$value/filter(plotdata,date==as.Date("2022-03-28"))$value-1))))+
+  geom_segment(x=as.Date("2022-04-25"),y=50000,
+               xend=as.Date("2022-04-01"),yend=48500,
+               color=col[1],size=0.7,arrow=arrow(length=unit(1.5,'mm')))+
   scale_y_continuous(limit=c(0,55000),label=dollar,
                      breaks=pretty_breaks(5))+
   scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+21)),
