@@ -16,12 +16,13 @@ ggplot(plotdata,aes(date,value))+
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
   geom_point(data=filter(plotdata,date==max(date)),
              color=col[1],size=2.5,stroke=2.5,fill='white',shape=21)+
-  annotate('text',x=as.Date("2022-05-01"),y=50000,hjust=0,color=col[1],size=2.5,
+  annotate('text',x=as.Date("2022-05-01"),y=53000,hjust=0,color=col[1],size=2.5,
            label="Pierre Poilievre says: \"opt out\" of\ninflation by buying crypto")+
-  annotate('text',x=max(plotdata$date)+5,y=filter(plotdata,date==max(date))$value+500,
+  annotate('text',x=max(plotdata$date)+5,
+           y=filter(plotdata,date==max(date))$value+500,
            hjust=0,color=col[1],vjust=0,size=3,
-           label=paste("Down\n",percent(abs(filter(plotdata,date==max(date))$value/filter(plotdata,date==as.Date("2022-03-28"))$value-1))))+
-  geom_segment(x=as.Date("2022-04-25"),y=50000,
+           label=paste0("Down\n",percent(abs(filter(plotdata,date==max(date))$value/filter(plotdata,date==as.Date("2022-03-28"))$value-1))))+
+  geom_segment(x=as.Date("2022-04-28"),y=53000,
                xend=as.Date("2022-04-01"),yend=48500,
                color=col[1],size=0.7,arrow=arrow(length=unit(1.5,'mm')))+
   scale_y_continuous(limit=c(0,55000),label=dollar,
@@ -85,7 +86,8 @@ plotdata<-data %>%
                AB=newdata$AB,
                fitted=predict(model,newdata %>% select(BC,SK,MB,ON,QC,NB,NS,PE,NL)))
   ) %>%
-  gather(type,val,-date)
+  gather(type,val,-date) %>%
+  filter(date<"2022-10-01") # tax partially reinstated Oct 1
 # average passthrough estimate
 regdata<-plotdata %>% 
   group_by(type) %>%
@@ -120,7 +122,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
   annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2,
-           label="Alberta Provincial Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
+           label="AB Prov Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
            label=effect,color=col[3],size=2)+
   mytheme+
@@ -133,11 +135,16 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                yend=filter(plotdata,(type=="AB"&date==max(date)))$val,
                arrow=arrow(length=unit(1,'mm')),
                size=0.75,color=col[3])+
+  # annotate('text',x=max(plotdata$date)+6,
+  #          y=mean(filter(plotdata,date==max(date))$val),
+  #          size=3,color=col[3],
+  #          label=paste0("  Price Gap\n  Estimate for\n  ",
+  #                       gsub(" 0"," ",format(max(newdata$date),"%b %d, %Y")),":\n  ",change),hjust=0)+
   annotate('text',x=max(plotdata$date)+6,
            y=mean(filter(plotdata,date==max(date))$val),
            size=3,color=col[3],
-           label=paste0("  Passthrough\n  Estimate for\n  ",
-                        gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),":\n  ",change),hjust=0)+
+           label=paste0("  Price Gap\n  Estimate for\n  ",
+                        "Sept 30, 2022",":\n  ",change),hjust=0)+
   labs(x="",y="Cents per Litre",
        title="Effect of Suspending the Alberta Gas Tax on Prices",
        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
@@ -189,7 +196,8 @@ plotdata<-data %>%
                AB=newdata$AB,
                fitted=predict(model,newdata %>% select(BC,SK,MB,ON,QC,NB,NS,PE,NL)))
   ) %>%
-  gather(type,val,-date)
+  gather(type,val,-date) %>%
+  filter(date<"2022-10-01") # tax partially reinstated Oct 1
 # regression estimate
 regdata<-plotdata %>% 
   group_by(type) %>%
