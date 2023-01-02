@@ -43,7 +43,132 @@ ggsave("Plots/Bitcoin.png",width=8,height=4)
 # Provincial Government Responses: Gas Taxes #
 ##############################################
 
-# Gas Tax Holiday in Alberta
+# Gas Tax Holiday in Alberta - in 2023
+start="2022-10-01" # pre-tretment start: period pf partial gas tax (4.5c/L) in AB
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2022/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+data2022 <- read_excel(gas_file,skip=2)
+colnames(data2022)[1]<-"city"
+pretreat<-data2022 %>%
+  mutate(row=row_number()) %>%
+  filter(row<=77) %>%
+  gather(date,val,-city,-row) %>%
+  mutate(date=paste0("2022/",date),
+         date=as.Date(date,"%Y/%m/%d"),
+         val=as.numeric(val)) %>%
+  mutate(province=case_when(
+    row %in% seq(2,8) ~ "BC",
+    row %in% seq(10,15) ~ "AB",
+    row %in% seq(16,19) ~ "SK",
+    row %in% seq(20,21) ~ "MB",
+    row %in% seq(22,46) ~ "ON",
+    row %in% seq(47,56) ~ "QC",
+    row %in% seq(57,65) ~ "NB",
+    row %in% seq(66,71) ~ "NS",
+    row %in% seq(72,72) ~ "PE",
+    row %in% seq(73,77) ~ "NL"
+  )) %>%
+  drop_na() %>%
+  group_by(date,province) %>%
+  summarise(val=mean(val)) %>% 
+  ungroup() %>%
+  filter(date>=start) %>%
+  spread(province,val)
+model<-lm(AB~BC+SK+MB+ON+QC+NB+NS+PE+NL,data=pretreat) # pre-treatment best fit
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2023/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2023.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+new <- read_excel(gas_file,skip=2)
+colnames(new)[1]<-"city"
+newdata<-new %>%
+  mutate(row=row_number()) %>%
+  filter(row<=77) %>%
+  gather(date,val,-city,-row) %>%
+  mutate(date=paste0("2023/",date),
+         date=as.Date(date,"%Y/%m/%d"),
+         val=as.numeric(val)) %>%
+  mutate(province=case_when(
+    row %in% seq(2,8) ~ "BC",
+    row %in% seq(10,15) ~ "AB",
+    row %in% seq(16,19) ~ "SK",
+    row %in% seq(20,21) ~ "MB",
+    row %in% seq(22,46) ~ "ON",
+    row %in% seq(47,56) ~ "QC",
+    row %in% seq(57,65) ~ "NB",
+    row %in% seq(66,71) ~ "NS",
+    row %in% seq(72,72) ~ "PE",
+    row %in% seq(73,77) ~ "NL"
+  )) %>%
+  drop_na() %>%
+  group_by(date,province) %>%
+  summarise(val=mean(val)) %>% 
+  ungroup() %>%
+  spread(province,val)
+plotdata<-pretreat %>% 
+  cbind(fitted=fitted(model)) %>%
+  select(date,AB,fitted) %>%
+  rbind(
+    data.frame(date=newdata$date,
+               AB=newdata$AB,
+               fitted=predict(model,newdata %>% select(BC,SK,MB,ON,QC,NB,NS,PE,NL)))
+  ) %>%
+  gather(type,val,-date)
+# average passthrough estimate
+regdata<-plotdata %>% 
+  group_by(type) %>%
+  mutate(change=val-weighted.mean(val,date=="2022-12-30")) %>%
+  select(date,type,change) %>%
+  spread(type,change) %>% 
+  mutate(gap=AB-fitted) %>%
+  mutate(treated=ifelse(date>="2023-01-01",1,0))
+model2<-lm(gap~1,data=regdata %>% filter(treated==1))
+confint(model2,'(Intercept)',level=0.95)
+effect<-paste0("95% CI Est (Jan 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[2],
+               " to ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[1]," passthrough")
+# latest passthrough
+change<-(plotdata %>% 
+           group_by(type) %>%
+           mutate(change=val-weighted.mean(val,date=="2022-12-30")) %>%
+           filter(date==max(date)) %>%
+           select(type,change) %>%
+           spread(type,change) %>%
+           mutate(drop=paste(round(fitted-AB,1),"c/L"))) %>%
+  select(drop) %>%
+  as.character()
+ggplot(plotdata,aes(date,val,group=type,color=type))+
+  geom_line(size=1.5)+
+  scale_color_manual(label=c("Alberta","\"Synthetic Alberta\" (Weighted Average of Other Provinces)"),
+                     values=col[1:2])+
+  scale_y_continuous(limit=c(120,NA))+
+  scale_x_date(labels=date_format("%d\n%b"),
+               date_breaks = '1 month',expand=c(0,0),
+               limit=c(as.Date(start),max(plotdata$date)+60))+
+  geom_vline(xintercept=as.Date("2022-12-30"),size=0.75,linetype='dashed')+
+  geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
+             fill='white',show.legend = F)+
+  annotate('text',x=as.Date("2022-12-30"),y=125,hjust=1,size=2,
+           label="AB Prov Gas Tax\nFully Suspended (-4.5c/L)")+
+  annotate('text',x=as.Date("2023-01-01"),y=125,hjust=0,
+           label=effect,color=col[3],size=2)+
+  mytheme+
+  geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
+               y=filter(plotdata,(type=="fitted"&date==max(date)))$val,
+               yend=filter(plotdata,(type=="AB"&date==max(date)))$val,
+               arrow=arrow(length=unit(1,'mm')),
+               size=0.75,color=col[3])+
+  annotate('text',x=max(plotdata$date)+6,
+           y=mean(filter(plotdata,date==max(date))$val),
+           size=3,color=col[3],
+           label=paste0("  Price Gap\n  Estimate for\n  ",
+                        "Sept 30, 2022",":\n  ",change),hjust=0)+
+  labs(x="",y="Cents per Litre",
+       title="Effect of Suspending the Alberta Gas Tax on Prices",
+       caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
+       subtitle=paste0("Displays average prices in Alberta compared to a \"synthetic Alberta\" composed of a fixed-weighted average of
+other provinces, with weights selected to best fit the period prior to the tax change. Data to ",
+                       gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
+ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
+
+# Gas Tax Holiday in Alberta - in 2022
 data<-read_excel("Data/gas_data_all.xls") %>%
   mutate(date=as.Date(Dates,"%m/%d/%Y"))
 start="2022-01-10" # start date matters; pick one that helps graph look intuitive
@@ -153,6 +278,117 @@ other provinces, with weights selected to best fit the period prior to the tax c
                        gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
 ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
 
+
+# Gas Tax Holiday in Alberta - in 2022
+data<-read_excel("Data/gas_data_all.xls") %>%
+  mutate(date=as.Date(Dates,"%m/%d/%Y"))
+start="2022-01-10" # start date matters; pick one that helps graph look intuitive
+model<-lm(AB~BC+SK+MB+ON+QC+NB+NS+PE+NL,data=data %>% filter(date>=start)) # pre-treatment best fit
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2022/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+new <- read_excel(gas_file,skip=2)
+colnames(new)[1]<-"city"
+newdata<-new %>%
+  mutate(row=row_number()) %>%
+  filter(row<=77) %>%
+  gather(date,val,-city,-row) %>%
+  mutate(date=paste0("2022/",date),
+         date=as.Date(date,"%Y/%m/%d"),
+         val=as.numeric(val)) %>%
+  mutate(province=case_when(
+    row %in% seq(2,8) ~ "BC",
+    row %in% seq(10,15) ~ "AB",
+    row %in% seq(16,19) ~ "SK",
+    row %in% seq(20,21) ~ "MB",
+    row %in% seq(22,46) ~ "ON",
+    row %in% seq(47,56) ~ "QC",
+    row %in% seq(57,65) ~ "NB",
+    row %in% seq(66,71) ~ "NS",
+    row %in% seq(72,72) ~ "PE",
+    row %in% seq(73,77) ~ "NL"
+  )) %>%
+  drop_na() %>%
+  group_by(date,province) %>%
+  summarise(val=mean(val)) %>% 
+  ungroup() %>%
+  filter(date>="2022-04-01") %>%
+  spread(province,val)
+plotdata<-data %>% 
+  filter(date>=start) %>%
+  cbind(fitted=fitted(model)) %>%
+  select(date,AB,fitted) %>%
+  rbind(
+    data.frame(date=newdata$date,
+               AB=newdata$AB,
+               fitted=predict(model,newdata %>% select(BC,SK,MB,ON,QC,NB,NS,PE,NL)))
+  ) %>%
+  gather(type,val,-date) %>%
+  filter(date<"2022-10-01") # tax partially reinstated Oct 1
+# average passthrough estimate
+regdata<-plotdata %>% 
+  group_by(type) %>%
+  mutate(change=val-weighted.mean(val,date=="2022-03-31")) %>%
+  select(date,type,change) %>%
+  spread(type,change) %>% 
+  mutate(gap=AB-fitted) %>%
+  mutate(treated=ifelse(date>="2022-04-01",1,0))
+model2<-lm(gap~1,data=regdata %>% filter(treated==1))
+confint(model2,'(Intercept)',level=0.95)
+effect<-paste0("95% CI Est (April 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[2],
+               " to ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[1]," passthrough")
+# latest passthrough
+change<-(plotdata %>% 
+           group_by(type) %>%
+           mutate(change=val-weighted.mean(val,date=="2022-03-31")) %>%
+           filter(date==max(date)) %>%
+           select(type,change) %>%
+           spread(type,change) %>%
+           mutate(drop=paste(round(fitted-AB,1),"c/L"))) %>%
+  select(drop) %>%
+  as.character()
+ggplot(plotdata,aes(date,val,group=type,color=type))+
+  geom_line(size=1.5)+
+  scale_color_manual(label=c("Alberta","\"Synthetic Alberta\" (Weighted Average of Other Provinces)"),
+                     values=col[1:2])+
+  scale_y_continuous(limit=c(120,NA))+
+  scale_x_date(labels=date_format("%d\n%b"),
+               date_breaks = '1 month',expand=c(0,0),
+               limit=c(as.Date(start),max(plotdata$date)+60))+
+  geom_vline(xintercept=as.Date("2022-03-31"),size=0.75,linetype='dashed')+
+  geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
+             fill='white',show.legend = F)+
+  annotate('text',x=as.Date("2022-03-31"),y=125,hjust=1,size=2,
+           label="AB Prov Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
+  annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
+           label=effect,color=col[3],size=2)+
+  mytheme+
+  # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
+  #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
+  # geom_segment(x=as.Date("2022-07-01"),y=167,yend=177,xend=max(plotdata$date)-5,
+  #              arrow=arrow(length=unit(1,'mm')),color=col[3])+
+  geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
+               y=filter(plotdata,(type=="fitted"&date==max(date)))$val,
+               yend=filter(plotdata,(type=="AB"&date==max(date)))$val,
+               arrow=arrow(length=unit(1,'mm')),
+               size=0.75,color=col[3])+
+  # annotate('text',x=max(plotdata$date)+6,
+  #          y=mean(filter(plotdata,date==max(date))$val),
+  #          size=3,color=col[3],
+  #          label=paste0("  Price Gap\n  Estimate for\n  ",
+  #                       gsub(" 0"," ",format(max(newdata$date),"%b %d, %Y")),":\n  ",change),hjust=0)+
+  annotate('text',x=max(plotdata$date)+6,
+           y=mean(filter(plotdata,date==max(date))$val),
+           size=3,color=col[3],
+           label=paste0("  Price Gap\n  Estimate for\n  ",
+                        "Sept 30, 2022",":\n  ",change),hjust=0)+
+  labs(x="",y="Cents per Litre",
+       title="Effect of Suspending the Alberta Gas Tax on Prices",
+       caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
+       subtitle=paste0("Displays average prices in Alberta compared to a \"synthetic Alberta\" composed of a fixed-weighted average of
+other provinces, with weights selected to best fit the period prior to the tax change. Data to ",
+                       gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
+ggsave('Plots/gas_tax_ab_old.png',width=8,height=4.5)
+
 # Gas Tax Holiday in Alberta - Diesel
 data<-read_excel("Data/diesel_data_all.xls") %>%
   mutate(date=as.Date(Dates,"%m/%d/%Y"))
@@ -255,7 +491,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
        subtitle=paste0("Displays average prices in Alberta compared to a \"synthetic Alberta\" composed of a fixed-weighted average of
 other provinces, with weights selected to best fit the period prior to the tax change. Data to ",
                        gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
-ggsave('Plots/diesel_tax_ab.png',width=8,height=4.5)
+ggsave('Plots/diesel_tax_ab_old.png',width=8,height=4.5)
 
 # Gas Tax Reduction in Ontario
 start="2022-03-01"
@@ -376,5 +612,5 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
        subtitle=paste0("Displays average gas prices in Ontario compared to a \"synthetic Ontario\" composed of a fixed-weighted average of
 other provinces, with weights selected to best fit the period prior to the tax change. Data to ",
                        gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
-ggsave('Plots/gas_tax_on.png',width=8,height=4.5)
+ggsave('Plots/gas_tax_on_old.png',width=8,height=4.5)
 
