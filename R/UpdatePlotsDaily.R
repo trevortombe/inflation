@@ -122,8 +122,8 @@ regdata<-plotdata %>%
   mutate(treated=ifelse(date>="2023-01-01",1,0))
 model2<-lm(gap~1,data=regdata %>% filter(treated==1))
 confint(model2,'(Intercept)',level=0.95)
-effect<-paste0("95% CI Est (Jan 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[2],
-               " to ",percent(-confint(model2,'(Intercept)',level=0.95)/13,1)[1]," passthrough")
+effect<-paste0("95% CI Est (Jan 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/4.5,1)[2],
+               " to ",percent(-confint(model2,'(Intercept)',level=0.95)/4.5,1)[1]," passthrough")
 # latest passthrough
 change<-(plotdata %>% 
            group_by(type) %>%
@@ -138,16 +138,16 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
   geom_line(size=1.5)+
   scale_color_manual(label=c("Alberta","\"Synthetic Alberta\" (Weighted Average of Other Provinces)"),
                      values=col[1:2])+
-  scale_y_continuous(limit=c(120,NA))+
+  scale_y_continuous(limit=c(118,NA))+
   scale_x_date(labels=date_format("%d\n%b"),
                date_breaks = '1 month',expand=c(0,0),
                limit=c(as.Date(start),max(plotdata$date)+60))+
   geom_vline(xintercept=as.Date("2022-12-30"),size=0.75,linetype='dashed')+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
-  annotate('text',x=as.Date("2022-12-30"),y=125,hjust=1,size=2,
+  annotate('text',x=as.Date("2022-12-28"),y=165,hjust=1,size=2,
            label="AB Prov Gas Tax\nFully Suspended (-4.5c/L)")+
-  annotate('text',x=as.Date("2023-01-01"),y=125,hjust=0,
+  annotate('text',x=as.Date("2023-01-01"),y=119,hjust=0,
            label=effect,color=col[3],size=2)+
   mytheme+
   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
@@ -159,7 +159,8 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
            y=mean(filter(plotdata,date==max(date))$val),
            size=3,color=col[3],
            label=paste0("  Price Gap\n  Estimate for\n  ",
-                        "Sept 30, 2022",":\n  ",change),hjust=0)+
+                        gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
+                        ":\n  ",change),hjust=0)+
   labs(x="",y="Cents per Litre",
        title="Effect of Suspending the Alberta Gas Tax on Prices",
        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
