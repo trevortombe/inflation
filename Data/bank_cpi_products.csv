@@ -1,0 +1,57 @@
+BOCid,product,subgroup
+1,Meat,Food
+2,"Fish, seafood and other marine products",Food
+3,Dairy products and eggs,Food
+4,Bakery and cereal products (excluding baby food),Food
+5,"Fruit, fruit preparations and nuts",Food
+6,Vegetables and vegetable preparations,Food
+7,Other food products and non-alcoholic beverages,Food
+8,Food purchased from restaurants,Food
+9,Rented accommodation,Shelter
+10,Mortgage interest cost,Shelter
+11,Homeowners' replacement cost,Shelter
+12,Property taxes and other special charges,Shelter
+13,Homeowners' home and mortgage insurance,Shelter
+14,Homeowners' maintenance and repairs,Shelter
+15,Other owned accommodation expenses,Shelter
+16,Electricity,Energy
+17,Water,Shelter
+18,Natural gas,Energy
+19,Fuel oil and other fuels,Energy
+20,Communications,Services
+21,Child care and housekeeping services,Services
+22,Household cleaning products,Household
+23,"Paper, plastic and aluminum foil supplies",Household
+24,Other household goods and services,Household
+25,Furniture,Household
+26,Household textiles,Household
+27,Household equipment,Household
+28,Services related to household furnishings and equipment,Household
+29,Clothing,Clothing
+30,Footwear,Clothing
+31,"Clothing accessories, watches and jewellery",Clothing
+32,"Clothing material, notions and services",Clothing
+33,Purchase of passenger vehicles,Transportation
+34,Leasing of passenger vehicles,Transportation
+35,Rental of passenger vehicles,Transportation
+36,Gasoline,Energy
+37,"Passenger vehicle parts, maintenance and repairs",Transportation
+38,Other passenger vehicle operating expenses,Transportation
+39,Local and commuter transportation,Transportation
+40,Inter-city transportation,Transportation
+41,Health care goods,Personal
+42,Health care services,Personal
+43,Personal care supplies and equipment,Personal
+44,Personal care services,Personal
+45,Recreational equipment and services (excluding recreational vehicles),Recreation
+46,Purchase of recreational vehicles and outboard motors,Recreation
+47,Operation of recreational vehicles,Recreation
+48,"Home entertainment equipment, parts and services",Recreation
+49,Travel services,Services
+50,Other cultural and recreational services,Services
+51,Education,Services
+52,Reading material (excluding textbooks),Services
+53,Alcoholic beverages served in licensed establishments,Alcohol and Tobacco
+54,Alcoholic beverages purchased from stores,Alcohol and Tobacco
+55,Tobacco products and smokers' supplies,Alcohol and Tobacco
+56,"Tobacco products, smokers' supplies and recreational cannabis",Alcohol and Tobacco
