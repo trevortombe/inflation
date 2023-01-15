@@ -30,7 +30,8 @@ yields<-get_cansim('10100139') %>%
   rename_all(list(~make.names(.)))
 
 # Product List (Manually Created)
-product_list<-read.csv("R/cpi_products.csv",stringsAsFactors = F)
+product_list<-read.csv("Data/cpi_products.csv",stringsAsFactors = F)
+BoC_list<-read.csv("Data/bank_cpi_products.csv",stringsAsFactors = F)
 
 # Headline Inflation Rate (Used in the UpdatePlots.R)
 inf_rates<-data %>%
