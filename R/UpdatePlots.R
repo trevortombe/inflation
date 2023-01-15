@@ -799,3 +799,78 @@ ggplot(plotdata %>% filter(date>="Jan 2020"),aes(date,rate,group=type,color=type
        caption='Source: own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
        x="",y="Percent")
 ggsave("Plots/MedianTrim_3mo.png",width=8,height=4)
+
+# Treemap of annual price changes
+plotdata<-decomp_cpi %>% 
+  filter(product %in% BoC_list$product,
+         Ref_Date==max(Ref_Date)) %>%
+  left_join(BoC_list %>% select(product,subgroup),by='product') %>%
+  ungroup() %>%
+  filter(!is.na(contrib)) %>%
+  arrange(change) %>%
+  mutate(label=paste0(product," (",percent(change,0.1),")"),
+         shading=ifelse(change>0.1,0.1,change),
+         shading=ifelse(change<0,0,shading)) %>%
+  select(product,label,effective_weight,shading,change,subgroup)
+ggplot(plotdata,aes(fill=shading,area=effective_weight,subgroup=subgroup)) + 
+  geom_treemap(color="white",size=2)+
+  geom_treemap_text(aes(label=label),place="center",
+                    color=ifelse(plotdata$change<0.04,'gray30','white'),
+                    min.size = 0,reflow=T,
+                    padding.x = unit(1.5, "mm"),
+                    padding.y = unit(1.5, "mm"))+
+  scale_fill_gradient2(low='#abdda4',high='#d7191c',limit=c(0,NA),
+                       mid='#abdda4',midpoint=0.02,
+                       breaks=seq(0,0.1,0.02),
+                       labels=c("<0%","2%","4%","6%","8%",">10%"))+
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
+                             alpha = 0.2, colour = "black",
+                             fontface = "italic",
+                             padding.x = unit(5, "mm"),
+                             padding.y = unit(5, "mm")) +
+  geom_treemap_subgroup_border(size=8,color="white")+
+  mytheme+
+  theme(legend.position = 'none')+
+  #theme(legend.key.width = unit(2, "cm"))+
+  #guides(fill=guide_colorbar(ticks.colour = NA))+
+  labs(title = paste0("Annual Price Changes in Canada (",max(data$Ref_Date),")"),
+       caption='Source: own calculations from Statistics Canada data table 18-10-0004-01. Graph by @trevortombe',
+       subtitle="Size of each square reflects the amount of average consumer spending.")
+ggsave('Plots/TreeMap_Annual.png',width=6,height=5,dpi=300)
+
+# Treemap of three-month average price changes
+plotdata<-indexes_sa %>%
+  left_join(weights,by=c("date","product")) %>% 
+  filter(!grepl("Consumer Price Index",product)) %>%
+  group_by(product) %>%
+  mutate(change=(index/lag(index,3))^4-1) %>%
+  filter(date==max(date)) %>%
+  left_join(BoC_list %>% select(product,subgroup),by='product') %>%
+  ungroup() %>%
+  mutate(label=paste0(product," (",percent(change,0.1),")"),
+         shading=ifelse(change>0.1,0.1,change),
+         shading=ifelse(change<0,0,shading)) %>%
+  select(product,label,w,shading,change,subgroup)
+ggplot(plotdata,aes(fill=shading,area=w,subgroup=subgroup)) + 
+  geom_treemap(color="white",size=2)+
+  geom_treemap_text(aes(label=label),place="center",
+                    color=ifelse(plotdata$change<0.04,'gray30','white'),
+                    min.size = 0,reflow=T,
+                    padding.x = unit(1.5, "mm"),
+                    padding.y = unit(1.5, "mm"))+
+  scale_fill_gradient2(low='#abdda4',high='#d7191c',limit=c(0,NA),
+                       mid='#abdda4',midpoint=0.02,
+                       breaks=seq(0,0.1,0.02),
+                       labels=c("<0%","2%","4%","6%","8%",">10%"))+
+  geom_treemap_subgroup_text(place = "centre", grow = TRUE,
+                             alpha = 0.2, colour = "black",
+                             fontface = "italic",
+                             padding.x = unit(5, "mm"),
+                             padding.y = unit(5, "mm")) +
+  geom_treemap_subgroup_border(size=8,color="white")+
+  mytheme+
+  theme(legend.position = 'none')+
+  labs(title = paste0("Annualized 3-Month Average Price Changes in Canada (",max(data$Ref_Date),")"),
+       caption='Source: Own calculations from the Bank of Canada\'s Core Inflation Measures. Seasonally adjusted. Graph by @trevortombe',
+       subtitle="Size of each square reflects the amount of average consumer spending.")
+ggsave('Plots/TreeMap_3moMA.png',width=6.5,height=5,dpi=300)
