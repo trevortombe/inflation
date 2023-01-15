@@ -4,6 +4,8 @@ This repo contains several regularly updated calculations -- such as the recentl
 
 ![](Plots/CoreInflation.png)
 
+![](Plots/TreeMap_3moMA.png)
+
 ![](Plots/MedianTrim.png)
 
 ![](Plots/MedianTrim_3mo.png)
