@@ -4,7 +4,7 @@
 
 Brief description of included files:
 
-- `ReplicationClean.R` pulls all necessary data to replicate all figures and tables in the paper. It fetches the most recently available, which may have been revised since the paper's publication. 
+- [ReplicationClean.R](ReplicationClean.R) pulls all necessary data to replicate all figures and tables in the paper. It fetches the most recently available, which may have been revised since the paper's publication. 
 - `DataForPaper.RData` provides the data vintages used by the paper.
 - `setup.R` is called by the replication file.
 - All figures and tables are provided in the `Figures` folder, based on the most recently available data. May not match what is reported in the paper due to later data revisions.
