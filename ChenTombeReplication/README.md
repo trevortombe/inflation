@@ -8,4 +8,12 @@ A FRED API key is required to run the analysis. The FRED data used in the paper 
 
 ---
 
-![](Plots/Figure1.png)
+![](Figures/Figure1.png)
+
+![](Figures/Figure2.png)
+
+![](Figures/Figure3.png)
+
+![](Figures/Figure5a.png)
+
+Other figures are found within the "Figures" directory. Table 1 is provided there as a plain text file.
