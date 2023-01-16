@@ -1,0 +1,97 @@
+product,good_service,core_noncore,bank_influence,import_share,energy_share,labour_share
+Food,good,non-core,no,21.41284577,0.021575389,0.247932533
+Non-alcoholic beverages,good,non-core,no,17.82001704,0.020516541,0.274969223
+Alcoholic beverages,good,non-core,no,15.08530953,0.01647473,0.267983571
+Tobacco,good,core,no,4.987536231,0.012494103,0.273510841
+"Clothing materials, other articles of clothing and clothing accessories",good,core,moderate,35.73995134,0.023145383,0.317378371
+Garments,good,core,moderate,33.45887656,0.011228129,0.346572486
+Cleaning of clothing,good,core,moderate,0,0.053336085,0.330701195
+Footwear,good,core,moderate,37.2471811,0.011361135,0.342373533
+Paid rental fees for housing,service,core,yes,0.069469347,0.018862701,0.072790402
+Imputed rental fees for housing,service,core,yes,0,0,0
+Materials for the maintenance and repair of the dwelling,good,core,yes,13.78133017,0.026353208,0.321450767
+Services for the maintenance and repair of the dwelling,service,core,yes,0,0.004599987,0.409940299
+Water supply and sanitation services,service,core,no,0.008573765,0.030522852,0.4028655
+Electricity,good,core,no,0.550145054,0.055385238,0.245623913
+Gas,good,non-core,moderate,6.955567253,0.023001907,0.178593154
+Other fuels,good,non-core,moderate,4.984783485,0.366634853,0.144062105
+Furniture and furnishings,good,core,yes,28.87541818,0.01693472,0.339597152
+Carpets and other floor coverings,good,core,yes,21.30551863,0.01945329,0.339694925
+Household textiles,good,core,yes,33.10354734,0.019254241,0.320976073
+Major household appliances,good,core,yes,36.85990155,0.013995861,0.302108981
+Small electric household appliances,good,core,yes,52.14953869,0.012649926,0.27350762
+Major tools and equipment,good,core,yes,39.52730244,0.014231286,0.327671763
+Small tools and miscellaneous accessories,good,core,yes,36.84416668,0.016229312,0.335809807
+Other semi-durable household goods,good,core,moderate,32.06690628,0.021669996,0.32784777
+Other non-durable household goods,good,core,moderate,34.34384304,0.025734252,0.285405744
+Repair of personal and household goods except vehicles,service,core,yes,0.892723493,0.027873923,0.414233487
+Renting and leasing of personal and household goods except passenger vehicles,service,core,yes,0,0.028140286,0.263548147
+Other services related to the dwelling and property,service,core,yes,0.132996011,0.012712326,0.672730908
+Pharmaceutical products and other medical products (except cannabis),good,core,no,25.86050011,0.014672838,0.346197965
+Therapeutic appliances and equipment,good,core,yes,33.92173217,0.011076404,0.382028661
+Out-patient services,service,core,no,0.007301394,0.014870432,0.362119652
+Hospital services,service,core,no,0,0.007319261,0.581255808
+New passenger cars,good,core,yes,58.3657805,0.006942804,0.139498569
+"New trucks, vans and sport utility vehicles",good,core,yes,52.46857144,0.007831171,0.139760594
+Used motor vehicles,good,core,yes,0.766947732,0.014221335,0.505381787
+Other vehicles,good,core,yes,32.59874073,0.008278974,0.238105861
+Spare parts and accessories for vehicles,good,core,moderate,23.61004978,0.018753729,0.355859611
+Fuels and lubricants,good,non-core,moderate,9.484449079,0.459630359,0.106805327
+Maintenance and repair of vehicles,good,core,moderate,0.020730922,0.025592334,0.404556175
+Parking,service,core,moderate,0,0.020226784,0.383295138
+Passenger vehicle renting,service,core,yes,0,0.026211951,0.195378661
+Other services related to the operation of transport equipment,service,core,yes,0.052517668,0.011813866,0.3472566
+Railway transport,service,core,yes,0,0.080758576,0.261758805
+Urban transit,service,core,no,0,0.10352401,1.047983043
+Interurban bus,service,core,yes,0,0.099337919,0.451181943
+Taxi and limousine,service,core,yes,0.695984848,0.067262991,0.112108037
+Air transport,service,core,yes,0.493083287,0.209607347,0.206279483
+Water transport,service,core,no,0.163938619,0.098597392,0.319247722
+Other transport services,service,core,no,0.014613444,0.060961063,0.31667323
+Postal services,service,core,no,6.914096267,0.028728451,0.562279924
+Telecommunication equipment,good,core,moderate,64.27192515,0.007906542,0.303874557
+Telecommunication services,service,core,yes,0.127924408,0.00714191,0.174951854
+Audio-visual and photographic equipment,good,core,moderate,51.15545852,0.010402732,0.325626041
+Information processing equipment,good,core,moderate,36.19968573,0.012187955,0.3764847
+Recording media,service,core,moderate,24.82684834,0.015550603,0.332682946
+Major durables for outdoor recreation,good,core,yes,38.70763402,0.010716378,0.294134061
+Musical instruments and major durables for indoor recreation,good,core,moderate,24.11583271,0.014496985,0.329750834
+"Games, toys and hobbies",good,core,yes,43.01837732,0.01210548,0.309914939
+"Equipment for sport, camping and open-air recreation",good,core,yes,33.00785262,0.014056109,0.318418038
+"Garden products, plants and flowers",good,core,moderate,8.914588671,0.033980252,0.337186653
+Pets and pet food,good,core,no,21.82858356,0.016940385,0.202691181
+Veterinary and other services for pets,service,core,no,0,0.006922325,0.283628292
+Recreational and sporting services,service,core,moderate,0.708723564,0.020815911,0.355280731
+"Cable, satellite and other program distribution services",service,core,yes,14.69585405,0.007207714,0.178351026
+Cinemas,service,core,moderate,0,0.017459611,0.207537723
+Photographic services,service,core,moderate,0.00067243,0.017973148,0.307982595
+Other cultural services,service,core,moderate,0,0.020032713,0.357142299
+Games of chance,service,core,no,0.056319313,0.01005718,0.30726345
+Books,good,core,moderate,29.09263287,0.012857097,0.344479153
+Newspapers and periodicals,good,core,moderate,12.03823951,0.012528309,0.368323878
+Miscellaneous printed matter and stationery and drawing materials,good,core,moderate,18.49854963,0.017439823,0.345285155
+University education,service,core,moderate,1.44841476,0.019866617,0.46552379
+Other education,service,core,moderate,0.25614381,0.018796578,0.559618383
+Food and non-alcoholic beverage services,service,core,yes,0.05004092,0.013066308,0.376933529
+Alcoholic beverage services,service,core,yes,0,0.014430859,0.361109407
+Accommodation services,service,core,yes,0,0.023835722,0.358478584
+Life insurance,service,core,moderate,20.00955464,0.00124671,0.194279872
+Property insurance,service,core,moderate,4.842096996,0.00124671,0.194279872
+Health insurance,service,core,moderate,15.90155332,0.00124671,0.194279872
+Insurance related to transport,service,core,moderate,3.886971516,0.00124671,0.194279872
+Implicit loan charges,service,core,moderate,2.031393908,0.005120982,0.363973181
+Implicit deposit charges,service,core,moderate,3.806674141,0.004162106,0.393546735
+Stock and bond commissions,service,core,moderate,45.48100787,0.003061298,0.321357355
+Other actual financial charges,service,core,moderate,4.890805872,0.005326804,0.374740727
+Trusteed pension funds,service,core,moderate,0,0.002802424,0.258856562
+Mutual funds,service,core,moderate,0,0.002802424,0.258856562
+Personal grooming services,service,core,moderate,0,0.020906261,0.299473705
+Electrical appliances for personal care,good,core,moderate,53.02371803,0.012536267,0.271609804
+"Other appliances, articles and products for personal care",good,core,moderate,27.85220829,0.017549317,0.323322977
+"Jewellery, clocks and watches",good,core,moderate,45.91704295,0.010031233,0.299518524
+Other personal effects,good,core,moderate,33.10367007,0.01272478,0.349636766
+Child care services outside the home,service,core,no,0,0.011315228,0.511332875
+Child care services in the home,service,core,no,0,0,1
+Other social services,service,core,no,0,0.010666427,0.54537853
+Undertaking and other funeral services,service,core,no,0,0.016659637,0.304835566
+Legal and other services,service,core,no,1.318502735,0.01655086,0.373734723
