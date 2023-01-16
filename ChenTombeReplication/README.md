@@ -3,3 +3,9 @@
 *Canadian Public Policy, forthcoming*
 
 The file "ReplicationClean.R" pulls all necessary data to replicate all figures and tables in the paper. It fetches the most recently available, which may have been revised since the paper's publication. The file "DataForPaper.RData" provides the data vintages used by the paper. The file "setup.R" is called by the replication file.
+
+A FRED API key is required to run the analysis. The FRED data used in the paper is provided within the DataForPaper file, but any future updates to that data require you enter your API key in the "setup.R" file.
+
+---
+
+![](Plots/Figure1.png)
