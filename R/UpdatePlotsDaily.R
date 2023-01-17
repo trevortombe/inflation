@@ -30,7 +30,6 @@ ggplot(plotdata,aes(date,value))+
   scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+21)),
                date_labels = format("%b\n%Y"),
                date_breaks = '1 month')+
-  mytheme+
   labs(x="",y="US Dollars",
        caption='Graph by @trevortombe',
        title=paste("Bitcoin Prices (USD),",
@@ -149,7 +148,6 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
            label="AB Prov Gas Tax\nFully Suspended (-4.5c/L)")+
   annotate('text',x=as.Date("2023-01-01"),y=119,hjust=0,
            label=effect,color=col[3],size=2)+
-  mytheme+
   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
                y=filter(plotdata,(type=="fitted"&date==max(date)))$val,
                yend=filter(plotdata,(type=="AB"&date==max(date)))$val,
@@ -251,7 +249,6 @@ ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
 #            label="AB Prov Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
 #   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
 #            label=effect,color=col[3],size=2)+
-#   mytheme+
 #   # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
 #   #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
 #   # geom_segment(x=as.Date("2022-07-01"),y=167,yend=177,xend=max(plotdata$date)-5,
@@ -362,7 +359,6 @@ ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
 #            label="AB Prov Gas Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.2c/L)  ")+
 #   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
 #            label=effect,color=col[3],size=2)+
-#   mytheme+
 #   # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
 #   #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
 #   # geom_segment(x=as.Date("2022-07-01"),y=167,yend=177,xend=max(plotdata$date)-5,
@@ -471,7 +467,6 @@ ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
 #            label="Alberta Provincial Diesel Tax Suspended (-13c/L)  \nNational Carbon Price Increases (+2.7c/L)  ")+
 #   annotate('text',x=as.Date("2022-04-05"),y=125,hjust=0,
 #            label=effect,color=col[3],size=2)+
-#   mytheme+
 #   # annotate('text',x=as.Date("2022-07-01"),size=3,color=col[3],
 #   #          y=160,label="Rising retail margins have\nnow absorbed the tax reduction")+
 #   # geom_segment(x=as.Date("2022-07-01"),y=167,yend=177,xend=max(plotdata$date)-5,
@@ -594,7 +589,6 @@ ggsave('Plots/gas_tax_ab.png',width=8,height=4.5)
 #              fill='white',show.legend = F)+
 #   annotate('text',x=as.Date("2022-06-29"),y=162,hjust=1,size=2,
 #            label="Provincial Gasoline Tax Lowered 5.7c/L")+
-#   mytheme+
 #   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
 #                y=filter(plotdata,(type=="fitted"&date==max(date)))$val,
 #                yend=filter(plotdata,(type=="ON"&date==max(date)))$val,
