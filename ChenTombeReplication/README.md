@@ -2,6 +2,8 @@
 
 *Canadian Public Policy, forthcoming*
 
+The latest version is available as a PDF [here](Chen_and_Tombe_2022.pdf).
+
 Brief description of included files:
 
 - [ReplicationClean.R](ReplicationClean.R) pulls all necessary data to replicate all figures and tables in the paper. It fetches the most recently available, which may have been revised since the paper's publication. 
