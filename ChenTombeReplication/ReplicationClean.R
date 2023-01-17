@@ -101,11 +101,7 @@ decomp_cpi<-cpi_data %>%
          contrib_check=ifelse(basket!=lag(basket,12),contrib_cross,contrib_nocross), # verify statcan same as your main approach
          effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
          change=Value/lag(Value,12)-1,
-         contrib=(1+change)*effective_weight-relimp_old, # main estimate
-         value_if_2prc=lag(Value,12)*1.02,
-         weight_if_2prc=(relimp_old/(value_if_2prc/I_atlink)+(1-1/(value_if_2prc/I_atlink))*relimp_new),
-         contrib_if_2prc=1.02*weight_if_2prc-relimp_old,
-         excluding_item=(cpi-contrib)/(1-effective_weight))
+         contrib=(1+change)*effective_weight-relimp_old) # main estimate
 plotdata<-decomp_cpi %>%
   filter(Ref_Date>="Jan 1989") %>% # when the 1986 basket begins
   filter(!is.na(w)) %>% # remove items without weight
