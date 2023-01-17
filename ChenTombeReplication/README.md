@@ -1,4 +1,4 @@
-# Replication code for Chen and Tombe (2023)
+# Replication Files for Chen and Tombe (2023)
 
 *Canadian Public Policy, forthcoming*
 
