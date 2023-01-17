@@ -1,102 +1,8 @@
 # Load required packages, define variables
 source("R/Setup.R")
 
-###########################
-# Load the Main Data Sets #
-###########################
-
-# Load and Format Main CPI Data
-data<-get_cansim('18100004') %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
-  rename_all(list(~make.names(.)))
-
-# Seasonally Adjusted CPI Data
-data2<-get_cansim('18100006') %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
-  rename_all(list(~make.names(.)))
-
-# Load and Format Main Bank of Canada Data
-BoCdata<-get_cansim('18100256') %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
-  rename_all(list(~make.names(.)))
-
-# Load and Format Bond Yield Data
-yields<-get_cansim('10100139') %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.Date(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-
-# Product List (Manually Created)
-product_list<-read.csv("Data/cpi_products.csv",stringsAsFactors = F)
-BoC_list<-read.csv("Data/bank_cpi_products.csv",stringsAsFactors = F)
-
-# Headline Inflation Rate (Used in the UpdatePlots.R)
-inf_rates<-data %>%
-  filter(Products.and.product.groups=="All-items",
-         GEO=="Canada") %>%
-  mutate(YoY=Value/lag(Value,12)-1) %>%
-  select(Ref_Date,YoY) %>%
-  drop_na()
-
-# Basket Weights
-weights<-get_cansim('18100007') %>%
-  rename(Value=VALUE) %>%
-  mutate(Ref_Date=as.numeric(REF_DATE)) %>%
-  rename_all(list(~make.names(.)))
-
-# Convert to monthly basket weights
-weights_monthly<-weights %>%
-  filter(GEO=="Canada",
-         Geographic.distribution.of.weight=="Distribution to selected geographies",
-         Price.period.of.weight=="Weight at basket link month prices") %>%
-  select(basket=Ref_Date,product=Products.and.product.groups,w=Value)
-link_months<-data.frame(
-  Ref_Date=seq(as.yearmon("1978-01"),max(data$Ref_Date),1/12)
-) %>%
-  mutate(basket=case_when(
-    Ref_Date>="Oct 1978" & Ref_Date<"Apr 1982" ~ 1974,
-    Ref_Date>="Apr 1982" & Ref_Date<"Jan 1985" ~ 1978,
-    Ref_Date>="Jan 1985" & Ref_Date<"Jan 1989" ~ 1982,
-    Ref_Date>="Jan 1989" & Ref_Date<"Jan 1995" ~ 1986,
-    Ref_Date>="Jan 1995" & Ref_Date<"Jan 1998" ~ 1992,
-    Ref_Date>="Jan 1998" & Ref_Date<"Jan 2003" ~ 1996,
-    Ref_Date>="Jan 2003" & Ref_Date<"Apr 2007" ~ 2001,
-    Ref_Date>="Apr 2007" & Ref_Date<"Apr 2011" ~ 2005,
-    Ref_Date>="Apr 2011" & Ref_Date<"Jan 2013" ~ 2009,
-    Ref_Date>="Jan 2013" & Ref_Date<"Dec 2014" ~ 2011,
-    Ref_Date>="Dec 2014" & Ref_Date<"Dec 2016" ~ 2013,
-    Ref_Date>="Dec 2016" & Ref_Date<"Dec 2018" ~ 2015,
-    Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
-    Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
-    Ref_Date>="May 2022" ~ 2021
-  )) %>%
-  group_by(basket) %>%
-  mutate(link_month=min(Ref_Date)) %>% ungroup()
-
-# The Bank of Canada Preferred Core Measures Product-Level Data
-data_sa<-read_excel("Data/Core_Measures_Inputs_External_E&F.xlsx",
-                    sheet="Indexes_SA")
-colnames(data_sa)[1]<-"product"
-colnames(data_sa)[2]<-"product_fr"
-indexes_sa<-data_sa %>%
-  select(-product_fr) %>%
-  filter(!is.na(product),!grepl("Source: Statistics Canada",product)) %>%
-  gather(date,index,-product) %>%
-  mutate(date=gsub("I_SA_","",date),
-         date=as.yearmon(date,"%Y%m"))
-data_w<-read_excel("Data/Core_Measures_Inputs_External_E&F.xlsx",
-                   sheet="Weights")
-colnames(data_w)[1]<-"product"
-colnames(data_w)[2]<-"product_fr"
-weights<-data_w %>%
-  select(-product_fr) %>%
-  filter(!is.na(product),!grepl("Source: Statistics Canada",product)) %>%
-  gather(date,w,-product) %>%
-  mutate(date=gsub("wght_","",date),
-         date=as.yearmon(date,"%Y%m"))
+# Fetch the latest data
+source("R/GetData.R")
 
 #############################
 # Generate the Plot Updates #
@@ -128,9 +34,8 @@ ggplot(plotdata %>%
   geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),alpha=0.5,fill=col[3],
               inherit.aes = F)+
   geom_line(size=2)+
-  annotate('text',x=2020.25,y=0.0325,label="Range of Core\nBoC Measures",
+  annotate('text',x=2020.5,y=.04,label="Range of Core\nBoC Measures",
            color=col[3],fontface='bold',alpha=0.6)+
-  mytheme+
   scale_color_brewer(name="",palette="Set1")+
   labs(x="",y="Per Cent Change, YoY")+
   scale_y_continuous(label=percent)+
@@ -158,7 +63,6 @@ ggplot(plotdata,aes(date,break_even))+
   geom_text(data=filter(plotdata,date==max(date)),color=col[1],nudge_x=180,
             hjust=0,aes(label=paste0("Latest:",
                                      "\n",percent(break_even,.1))))+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_x_date(date_breaks="4 years",date_labels="%Y",
                limits=as.Date(c(min(plotdata$date),max(plotdata$date)+500)))+
@@ -184,7 +88,6 @@ temp<-data %>%
 ggplot(temp,aes(Ref_Date,above))+
   geom_line(size=2,color=col[1])+
   geom_hline(yintercept=0,size=1)+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6))+
   labs(x="",y="Per Cent",
@@ -240,7 +143,6 @@ ggplot(plotdata,aes(Ref_Date))+
        caption="Graph by @trevortombe",
        x="",y="Percent Change (YoY)",
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004")+
-  mytheme+
   geom_vline(xintercept=as.yearmon("2021-05"),linetype='dashed')+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6))
@@ -275,9 +177,6 @@ decomp_cpi<-data %>%
   mutate(effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
          change=Value/lag(Value,12)-1,
          contrib=(1+change)*effective_weight-relimp_old, # main estimate
-         value_if_2prc=lag(Value,12)*1.02,
-         weight_if_2prc=(relimp_old/(value_if_2prc/I_atlink)+(1-1/(value_if_2prc/I_atlink))*relimp_new),
-         contrib_if_2prc=1.02*weight_if_2prc-relimp_old,
          excluding_item=(cpi-contrib)/(1-effective_weight))
 plotdata<-decomp_cpi %>%
   filter(product %in% c("Food purchased from stores",
@@ -301,7 +200,8 @@ plotdata<-decomp_cpi %>%
   ungroup() %>%
   filter(Ref_Date>="Jan 2018") %>%
   mutate(product=case_when(
-    product=="Food purchased from stores" ~ "Food (Groceries)",
+    product=="Food purchased from stores" ~ "Food (groceries)",
+    product=="Household furnishings and equipment" ~ "Furniture and household equip.",
     product=="Homeowners' replacement cost" ~ "Homeowners' depreciation",
     TRUE ~ product
   )) %>%
@@ -312,8 +212,7 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_line(aes(y=cpi),size=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
-  mytheme+
-  theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
+  theme(plot.margin = unit(c(0.25,8,0.25,0.25),"lines"),
         legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
@@ -423,7 +322,6 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
                  mutate(id=id-1),
                aes(x=id+0.45,xend=id+0.45,y=start,yend=end),
                size=0.5,arrow=arrow(type="closed",length=unit(0.1,"cm")))+
-  mytheme+
   # scale_fill_manual(name="",values=c(col[3],col[2],col[2],col[1]))+
   scale_y_continuous(breaks=pretty_breaks(n=6),label=percent)+
   labs(x="",y="Percentage Points",
@@ -531,7 +429,6 @@ ggplot(plotdata %>% filter(sign!="first" & sign!="net") %>%
                  mutate(id=id-1),
                aes(x=id+0.45,xend=id+0.45,y=start,yend=end),
                size=0.75,arrow=arrow(type="closed",length=unit(0.15,"cm")))+
-  mytheme+
   scale_y_continuous(breaks=pretty_breaks(n=6),label=percent_format(accuracy=0.1),
                      limit=c(min(plotdata[1:dim(plotdata)[1]-1,]$end)-0.001,
                              max(plotdata[1:dim(plotdata)[1]-1,]$end)+0.001))+
@@ -658,7 +555,6 @@ ggplot(plotdata,aes(Ref_Date))+
   geom_text(data=filter(plotdata,Ref_Date==max(Ref_Date)),fontface='bold',
             aes(label=percent(cpi-contrib,0.1),y=cpi-contrib),hjust=0,
             nudge_x=0.5,color=col[2])+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+1))+
   geom_hline(yintercept=0,size=1)+
@@ -690,11 +586,10 @@ ggplot(plotdata,aes(Ref_Date,Value))+
   geom_line(size=2,color=col[2])+
   geom_line(data=filter(plotdata,Ref_Date>="Feb 2020"),aes(y=target),size=2,color=col[3],
             linetype='dotted')+
-  annotate('text',x=2021,y=143,hjust=1,
-           label="Bank of Canada 1-3% Target Range",color='gray',fontface='bold')+
-  annotate('text',x=2020.25,y=139,hjust=1,label="Mid-Point 2% Target",color=col[3],fontface='bold')+
-  annotate('text',x=2020.25,y=135,hjust=0,label="CPI Data",color=col[2],fontface='bold')+
-  mytheme+
+  annotate('text',x=2022.5,y=138,
+           label="Bank of Canada\nTarget Range",color='gray',fontface='bold')+
+  annotate('text',x=2020.5,y=142,hjust=1,label="Mid-Point 2% Target",color=col[3],fontface='bold')+
+  annotate('text',x=2021,y=137,hjust=0,label="Price Level Data",color=col[2],fontface='bold')+
   labs(title="Path of the Consumer Price Index in Canada",x="",y="CPI Index (2002 = 100)",
        subtitle="Source: own calculations from Statistics Canada data table 18-10-0006",
        caption='Graph by @trevortombe')
@@ -711,7 +606,7 @@ plotdata<-data2 %>%
   mutate(Products.and.product.groups=ifelse(Products.and.product.groups=="Alcoholic beverages, tobacco products and recreational cannabis",
                                             "Alcohol and Tobacco",Products.and.product.groups),
          Products.and.product.groups=ifelse(Products.and.product.groups=="Household operations, furnishings and equipment",
-                                            "Household, furniture/eauipment",Products.and.product.groups),
+                                            "Household, furniture/eauip.",Products.and.product.groups),
          Products.and.product.groups=ifelse(Products.and.product.groups=="Recreation, education and reading",
                                             "Recreation, education",Products.and.product.groups))
 ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
@@ -722,7 +617,6 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                   direction='y',nudge_x=0.05,size=3,
                   show.legend = F,segment.alpha=0)+
   geom_line(size=2,show.legend=F)+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1.5),
                   breaks=pretty_breaks(6),format="%b\n%Y")+
@@ -767,7 +661,6 @@ ggplot(plotdata,aes(date,rate,group=type,color=type))+
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=min(plotdata$date),y=0.035,label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
   geom_line(size=1.5)+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
   scale_x_continuous(breaks=pretty_breaks(5))+
@@ -776,6 +669,57 @@ ggplot(plotdata,aes(date,rate,group=type,color=type))+
        caption='Source: own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
        x="",y="Percent")
 ggsave("Plots/MedianTrim.png",width=8,height=4)
+
+# Add own calculation of CPI Common
+# three-month average
+CPIcommon_index<-indexes_raw %>%
+  filter(grepl("Consumer Price Index",product)) %>%
+  select(-product) %>%
+  mutate(index=as.numeric(index)) %>%
+  filter(year(date)==1989)
+temp<-data.frame(
+  date=as.yearmon("Jan 1990")+seq(0,length(allitems)-1)/12,
+  CPIcommon=predict(lm(allitems~predict(prcomp(change,scale=T,center=T),newdata=change)[,1]))
+)
+results<-CPIcommon_index
+for (y in seq(1990,max(year(temp$date)))){
+  temp2<-temp %>%
+    filter(year(date)==y) %>%
+    left_join(filter(results,year(date)==y-1) %>% mutate(date=date+1),by='date') %>%
+    mutate(index=(1+CPIcommon)*index) %>%
+    select(date,index)
+  results<-results %>%
+    bind_rows(temp2)
+}
+CPIcommon_index_sa<-results %>%
+  mutate(group='group') %>%
+  rename(Value=index,
+         Ref_Date=date) %>%
+  getseas('group') %>%
+  mutate(change=Value/lag(Value,1))
+plotdata<-CPImedian %>%
+  select(date,CPImedian=change) %>%
+  left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
+  left_join(CPIcommon_index_sa %>% select(date=Ref_Date,CPIcommon=change),by='date') %>%
+  filter(date>="Jan 2009") %>%
+  select(date,CPImedian,CPItrim,CPIcommon) %>%
+  gather(type,rate,-date) %>%
+  group_by(type) %>%
+  mutate(rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
+ggplot(plotdata %>% filter(date>="Jan 2018"),aes(date,rate,group=type,color=type))+
+  annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
+  annotate('text',x=-Inf,y=0.035,hjust=0,
+           label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
+  geom_line(size=2)+
+  scale_y_continuous(label=percent)+
+  scale_color_manual(label=c("CPI-Common *","CPI-Median","CPI-Trim"),values=col[1:3])+
+  scale_x_continuous(breaks=pretty_breaks(3))+
+  labs(title="Bank of Canada's Core Inflation Measures, 3-Month (Annualized) Change",
+       subtitle="Reflects the 3-month average annualized change in CPI-median, CPI-trim, and CPI-common",
+       caption='* Based on the implied seasonally adjusted price index that corresponds to the year-over-year CPI-common series.
+Source: Own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
+       x="",y="Percent")
+ggsave("Plots/MedianTrimCommon_3mo.png",width=8,height=4)
 
 # Bank of Canada Preferred Measures (Median and Trim), 3-month moving average
 plotdata<-CPImedian %>%
@@ -791,7 +735,6 @@ ggplot(plotdata %>% filter(date>="Jan 2020"),aes(date,rate,group=type,color=type
   annotate('text',x=-Inf,y=0.035,hjust=0,
            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
   geom_line(size=2)+
-  mytheme+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
   scale_x_continuous(breaks=pretty_breaks(3))+
@@ -830,10 +773,7 @@ ggplot(plotdata,aes(fill=shading,area=effective_weight,subgroup=subgroup)) +
                              padding.x = unit(5, "mm"),
                              padding.y = unit(5, "mm")) +
   geom_treemap_subgroup_border(size=8,color="white")+
-  mytheme+
   theme(legend.position = 'none')+
-  #theme(legend.key.width = unit(2, "cm"))+
-  #guides(fill=guide_colorbar(ticks.colour = NA))+
   labs(title = paste0("Annual Price Changes in Canada (",max(data$Ref_Date),")"),
        caption='Source: own calculations from Statistics Canada data table 18-10-0004-01. Graph by @trevortombe',
        subtitle="Size of each square reflects the amount of average consumer spending.")
@@ -869,7 +809,6 @@ ggplot(plotdata,aes(fill=shading,area=w,subgroup=subgroup)) +
                              padding.x = unit(5, "mm"),
                              padding.y = unit(5, "mm")) +
   geom_treemap_subgroup_border(size=8,color="white")+
-  mytheme+
   theme(legend.position = 'none')+
   labs(title = paste0("Annualized 3-Month Average Price Changes in Canada (",max(data$Ref_Date),")"),
        caption='Source: Own calculations from the Bank of Canada\'s Core Inflation Measures. Seasonally adjusted. Graph by @trevortombe',
