@@ -9,14 +9,16 @@ Brief description of included files:
 - [Setup.R](Setup.R) is called by the replication file.
 - All figures and tables are provided in the [Figures](Figures) folder, based on the most recently available data. May not match what is reported in the paper due to later data revisions.
 
-**Note:** A FRED API key is required to run the analysis. The FRED data used in the paper is provided within the DataForPaper file, but any future updates to that data require you enter your API key in the "setup.R" file.
+**Note:** A FRED API key is required to run the analysis. The FRED data used in the paper is provided within the DataForPaper file, but any future updates to that data require you enter your API key in the [Setup.R](Setup.R) file.
 
 ---
 
-![](Figures/Figure1.png)
+Selected figures:
 
-![](Figures/Figure2.png)
+![](Figures/Figure1.png)
 
 ![](Figures/Figure3.png)
 
 ![](Figures/Figure5a.png)
+
+![](Figures/Figure7.png)
