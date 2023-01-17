@@ -1,10 +1,10 @@
-source('setup.R')
+source('Setup.R')
 
 ##########################
 # Load the Required Data #
 ##########################
 
-# The old vintage of data used in the paper: load('DataForPaper.RData')
+# The old vintage of data used in the paper: load('Files/DataForPaper.RData')
 # This may differ from later updates due to StatCan data revisions.
 # Either load the old data or run the 'get_cansim' functions below
 
@@ -29,7 +29,7 @@ pce_data_new<-get_cansim("36100124") %>%
   rename(Value=VALUE)
 
 # CPI product list
-product_list<-read.csv("cpi_products.csv")
+product_list<-read.csv("Files/cpi_products.csv")
 
 # Oil prices and exchange rates (FRED API key required)
 wti<-fredr("MCOILWTICO")
@@ -164,6 +164,7 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
+ggsave("Figures/Figure1.png",gt,width=8,height=4)
 
 # Figure 2: Sensitivity of individual components to oil prices
 oil_change<-wti %>%
@@ -242,6 +243,7 @@ and FRED MCOILWTICO and DEXCAUS",
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
+ggsave("Figures/Figure2.png",gt,width=8,height=4)
 
 #############
 # Section 3 #
@@ -298,6 +300,7 @@ ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
        title="Two Measures of Inflation in Canada",
        subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004 and 36-10-0107",
        y="Per Cent")
+ggsave("Figures/Figure3.png",width=8,height=4)
 
 # Construct the supply/demand classifications using VAR estimates
 products_aggregate<-c("Food and non-alcoholic beverages",
@@ -400,7 +403,7 @@ for (p in prods){ # VAR models; rolling windows; product-specific
 unexp_shocks %>% summarise(share=mean(1*(type=="Ambiguous")))
 
 # Gather the results to generate the main figures / results
-classify_types<-read.csv("product_list.csv")
+classify_types<-read.csv("Files/product_list.csv")
 results<-price_change %>%
   left_join(unexp_shocks %>% dplyr::select(Ref_Date,product,type),by=c("Ref_Date","product")) %>%
   filter(!is.na(type)) %>% # drop cannabis
@@ -419,7 +422,7 @@ results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categorie
   mutate(share=contrib/PCE) %>% ungroup() %>%
   filter(Ref_Date>="Jan 2010") %>%
   mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
-write.csv(results,"BaselineResults.csv",row.names = F)
+write.csv(results,"Files/BaselineResults.csv",row.names = F)
 
 # Figure 5a: Annual PCE Inflation
 dev.off()
@@ -450,6 +453,8 @@ p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
+ggsave("Figures/Figure5a.png",gt,width=8,height=4)
+
 # Figure 5b: Quarterly PCE Inflation
 dev.off()
 p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
@@ -480,6 +485,7 @@ p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
+ggsave("Figures/Figure5b.png",gt,width=8,height=4)
 
 # Table 1: Top Contributors to Annual PCE Inflation (Latest Quarter)
 top_contributors<-price_change %>%
@@ -531,6 +537,7 @@ table<-data.frame(table1,table2) %>%
   )
   )
 table
+write.table(table,'Figures/Table1.txt',row.names = F)
 
 ###############
 # Section 3.5 #
@@ -563,6 +570,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
+ggsave("Figures/Figure6.png",width=8,height=4)
 
 # Figure 7: Energy Intensive or Not
 plotdata<-unexp_shocks %>%
@@ -590,6 +598,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
+ggsave("Figures/Figure7.png",width=8,height=4)
 
 # Figure 8: Traded vs Non-Traded
 plotdata<-unexp_shocks %>%
@@ -617,6 +626,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
+ggsave("Figures/Figure8.png",width=8,height=4)
 
 #############
 # Section 4 #
@@ -677,6 +687,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
+ggsave("Figures/Figure10.png",width=8,height=8)
 
 #################
 # Section 3.5.4 #
@@ -809,4 +820,5 @@ p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
+ggsave("Figures/Figure9.png",gt,width=8,height=4)
 
