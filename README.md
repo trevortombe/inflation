@@ -1,4 +1,6 @@
-This repo contains several regularly updated calculations -- such as the recently terminated aggregate of services excluding shelter services -- and potentially informative visualizations to better understand Canada's recently high rates of inflation. It will automatically fetch the latest data (normally with only a few hours delay) and regenerate the plots.
+This repo contains several regularly updated calculations to better understand Canada's recent inflation experience. It will automatically fetch the latest data (normally with only a few hours delay) and regenerate the plots. This repo also houses the replication code for Chen and Tombe (2023), forthcoming in the journal *Canadian Public Policy*.
+
+---
 
 ![](Plots/CoreInflation.png)
 
