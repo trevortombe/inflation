@@ -2,7 +2,7 @@
 
 *Canadian Public Policy, forthcoming*
 
-The latest version is available as a PDF [here](Chen_and_Tombe_2022.pdf).
+The latest version is available as a PDF [here](Chen_and_Tombe_2023.pdf).
 
 Brief description of included files:
 
