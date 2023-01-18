@@ -418,7 +418,6 @@ results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categorie
   mutate(share=contrib/PCE) %>% ungroup() %>%
   filter(Ref_Date>="Jan 2010") %>%
   mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
-write.csv(results,"Files/BaselineResults.csv",row.names = F)
 
 # Figure 5a: Annual PCE Inflation
 dev.off()
@@ -483,6 +482,17 @@ gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Figures/Figure5b.png",gt,width=8,height=4)
 
+# Save csv of the results - annual
+write.csv(results %>% select(Date=Ref_Date,contrib_annual,
+                             type,PCE_annual) %>%
+            spread(type,contrib_annual) %>%
+            mutate(Date=as.yearqtr(Date)),"Files/Results_2010_Latest_Annual.csv",row.names = F)
+# Save csv of the results - quarterly
+write.csv(results %>% select(Date=Ref_Date,contrib,
+                             type,PCE) %>%
+            spread(type,contrib) %>%
+            mutate(Date=as.yearqtr(Date)),"Files/Results_2010_Latest_Quarterly.csv",row.names = F)
+
 # Table 1: Top Contributors to Annual PCE Inflation (Latest Quarter)
 top_contributors<-price_change %>%
   left_join(unexp_shocks %>% dplyr::select(Ref_Date,product,type),by=c("Ref_Date","product")) %>%
@@ -504,7 +514,7 @@ table2<-top_contributors %>%
   filter(rank(-contrib_sup)<=10) %>%
   mutate(contrib=round(100*contrib_sup,2)) %>%
   dplyr::select(Supply=product,contrib)
-table<-data.frame(table1,table2) %>%
+table<-data.frame(table1,table2) %>% # Shorten selected product names
   mutate(Demand=case_when(
     Demand=="Cable, satellite and other program distribution services" ~ "Cable/satellite service",
     Demand=="Gas" ~ "Natural gas for homes",
@@ -789,7 +799,7 @@ results<-price_change %>%
 dev.off()
 p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_area(position='stack',size=0.05,color='white')+
-  geom_line(aes(Ref_Date,PCE_annual),size=2,inherit.aes = F)+
+  geom_line(aes(Ref_Date,PCE_annual),linewidth=2,inherit.aes = F)+
   geom_hline(yintercept=0,size=1)+
   theme(plot.margin = unit(c(0.25,3,0.25,0.25),"lines"),
         legend.position = 'none',
@@ -818,3 +828,13 @@ gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Figures/Figure9.png",gt,width=8,height=4)
 
+# Save csv of the results - annual
+write.csv(results %>% select(Date=Ref_Date,contrib_annual,
+                             type,PCE=PCE_annual) %>%
+            spread(type,contrib_annual) %>%
+            mutate(Date=as.yearqtr(Date)),"Files/Results_1972_2019_Annual.csv",row.names = F)
+# Save csv of the results - quarterly
+write.csv(results %>% select(Date=Ref_Date,contrib,
+                             type,PCE) %>%
+            spread(type,contrib) %>%
+            mutate(Date=as.yearqtr(Date)),"Files/Results_1972_2019_Quarterly.csv",row.names = F)
