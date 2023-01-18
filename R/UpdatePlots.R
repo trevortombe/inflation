@@ -33,7 +33,7 @@ ggplot(plotdata %>%
   geom_hline(yintercept=0,size=1)+
   geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),alpha=0.5,fill=col[3],
               inherit.aes = F)+
-  geom_line(size=2)+
+  geom_line(linewidth=2)+
   annotate('text',x=2020.5,y=.04,label="Range of Core\nBoC Measures",
            color=col[3],fontface='bold',alpha=0.6)+
   scale_color_brewer(name="",palette="Set1")+
@@ -672,6 +672,24 @@ ggsave("Plots/MedianTrim.png",width=8,height=4)
 
 # Add own calculation of CPI Common
 # three-month average
+allitems<-indexes_raw %>%
+  filter(grepl("Consumer Price Index",product)) %>%
+  mutate(index=as.numeric(index),
+         allitems=index/lag(index,12)-1) %>%
+  select(date,allitems) %>%
+  filter(!is.na(allitems)) %>%
+  select(-date) %>%
+  ts(frequency=12,start=c(1990,1))
+change<-indexes_raw %>%
+  filter(!grepl("Consumer Price Index",product)) %>%
+  group_by(product) %>%
+  mutate(index=as.numeric(index),
+         YoY=index/lag(index,12)-1) %>%
+  filter(!is.na(YoY)) %>%
+  select(date,product,YoY) %>%
+  spread(product,YoY) %>%
+  select(-date) %>%
+  ts(frequency=12,start=c(1990,1))
 CPIcommon_index<-indexes_raw %>%
   filter(grepl("Consumer Price Index",product)) %>%
   select(-product) %>%
