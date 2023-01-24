@@ -422,7 +422,7 @@ results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categorie
 # Figure 5a: Annual PCE Inflation
 dev.off()
 p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
-  geom_col(position='stack',size=0.05,color='white')+
+  geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(aes(Ref_Date,PCE_annual),size=2)+
   geom_hline(yintercept=0,size=1)+
   theme(plot.margin = unit(c(0.25,3,0.25,0.25),"lines"),
