@@ -590,6 +590,13 @@ ggplot(plotdata,aes(Ref_Date,Value))+
            label="Bank of Canada\nTarget Range",color='gray',fontface='bold')+
   annotate('text',x=2020.5,y=142,hjust=1,label="Mid-Point 2% Target",color=col[3],fontface='bold')+
   annotate('text',x=2021,y=137,hjust=0,label="Price Level Data",color=col[2],fontface='bold')+
+  annotate('text',x=2021.5,y=152.5,hjust=1,color=col[1],
+           label=paste("Price levels are now",
+                       percent(filter(plotdata,Ref_Date==max(Ref_Date))$Value/
+                                 filter(plotdata,Ref_Date==max(Ref_Date))$target-1,.1),
+                       "\nhigher than if BoC target met"))+
+  geom_segment(x=2021.6,xend=2022.2,y=152.5,yend=152.5,color=col[1],
+               arrow=arrow(length=unit(1.5,'mm')))+
   labs(title="Path of the Consumer Price Index in Canada",x="",y="CPI Index (2002 = 100)",
        subtitle="Source: own calculations from Statistics Canada data table 18-10-0006",
        caption='Graph by @trevortombe')
@@ -723,7 +730,8 @@ plotdata<-CPImedian %>%
   select(date,CPImedian,CPItrim,CPIcommon) %>%
   gather(type,rate,-date) %>%
   group_by(type) %>%
-  mutate(rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
+  mutate(rate6=(rate*lag(rate,1)*lag(rate,2)*lag(rate,3)*lag(rate,1)*lag(rate,5))^2-1,
+         rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
 ggplot(plotdata %>% filter(date>="Jan 2018"),aes(date,rate,group=type,color=type))+
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=-Inf,y=0.035,hjust=0,
