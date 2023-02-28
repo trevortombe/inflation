@@ -283,7 +283,7 @@ plotdata<-cpi_data %>%
   mutate(CPI=Value/lag(Value,4)-1) %>%
   dplyr::select(Ref_Date,CPI) %>%
   left_join(price_change,by="Ref_Date") %>%
-  filter(Ref_Date>="1962 Q1",Ref_Date<='2022 Q3') %>% # Q3 is latest
+  filter(Ref_Date>="1962 Q1",Ref_Date<=max(price_change$Ref_Date)) %>%
   gather(type,val,-Ref_Date)
 ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
   geom_line(size=2,show.legend = F)+
@@ -461,15 +461,14 @@ p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
-  geom_label(data=results %>% filter(Ref_Date==max(Ref_Date)-.25) %>%
+  geom_label(data=results %>% filter(Ref_Date==max(Ref_Date)) %>%
                arrange(desc(type)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
-                      location=ifelse(contrib<0,contrib-.0015,location),
-                      location=ifelse(type=="Demand",location+.0025,location),
+                      location=ifelse(contrib_annual<0,contrib-.0015,location),
                       labelname=gsub(" ","\n  ",type)),
-             aes(label=paste0("  ",type),y=location),
-             hjust=0,nudge_x=1/6+.25,fontface="bold",size=3,fill='white',label.size = 0)+
+             aes(label=paste0("  ",type),y=location,color=type),
+             hjust=0,nudge_x=1/6,fontface="bold",size=3,fill='white',label.size = 0)+
   scale_x_yearmon(format='%Y')+
   scale_y_continuous(label=percent,breaks=pretty_breaks(6))+
   annotate('text',x=2021.65,hjust=1,label="Quarterly PCE Inflation",size=3,y=.0175)+

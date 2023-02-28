@@ -1,11 +1,11 @@
 "Demand" "contrib" "Supply" "contrib.1"
-"Imputed rental fees for housing" 0.74 "Vehicle fuel/lubricants" 0.66
-"Natural gas for homes" 0.12 "Food (groceries)" 0.65
-"Furniture and furnishings" 0.12 "Paid rental fees for housing" 0.22
-"Accommodation services" 0.11 "Food (restaurants)" 0.2
-"Air transport" 0.09 "Vehicle parts/accessories" 0.14
-"Food (restaurants)" 0.09 "Accommodation services" 0.13
-"Out-patient services" 0.08 "Non-alcoholic beverages" 0.1
-"Games of chance" 0.07 "New trucks/vans/SUVs" 0.1
-"Personal elec. appliances" 0.07 "Natural gas for homes" 0.09
-"Other actual financial charges" 0.05 "Alcoholic beverages" 0.07
+"Imputed rental fees for housing" 0.42 "Food (groceries)" 0.62
+"Food (restaurants)" 0.17 "Vehicle fuel/lubricants" 0.3
+"Furniture and furnishings" 0.11 "Paid rental fees for housing" 0.29
+"Air transport" 0.1 "Food (restaurants)" 0.2
+"Games of chance" 0.09 "Accommodation services" 0.13
+"Natural gas for homes" 0.08 "New trucks/vans/SUVs" 0.12
+"Out-patient services" 0.07 "Non-alcoholic beverages" 0.11
+"Other actual financial charges" 0.04 "Vehicle parts/accessories" 0.11
+"Personal elec. appliances" 0.04 "Alcoholic beverages" 0.08
+"Other non-durable household goods" 0.04 "Natural gas for homes" 0.08
