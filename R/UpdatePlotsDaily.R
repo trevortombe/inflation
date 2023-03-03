@@ -29,7 +29,7 @@ ggplot(plotdata,aes(date,value))+
                      breaks=pretty_breaks(5))+
   scale_x_date(limit=as.Date(c(min(plotdata$date),max(plotdata$date)+21)),
                date_labels = format("%b\n%Y"),
-               date_breaks = '1 month')+
+               date_breaks = '2 month')+
   labs(x="",y="US Dollars",
        caption='Graph by @trevortombe',
        title=paste("Bitcoin Prices (USD),",
@@ -101,6 +101,7 @@ newdata<-new %>%
   group_by(date,province) %>%
   summarise(val=mean(val)) %>% 
   ungroup() %>%
+  # filter(date<="2023-03-01") %>%
   spread(province,val)
 plotdata<-pretreat %>% 
   cbind(fitted=fitted(model)) %>%
