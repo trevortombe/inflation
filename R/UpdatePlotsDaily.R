@@ -42,6 +42,9 @@ ggsave("Plots/Bitcoin.png",width=8,height=4)
 # Provincial Government Responses: Gas Taxes #
 ##############################################
 
+# Approximate city populations
+city_pop<-read_excel('Data/city_population.xlsx')
+
 # Gas Tax Holiday in Alberta - in 2023
 start="2022-10-01" # pre-tretment start: period pf partial gas tax (4.5c/L) in AB
 url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2022/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2022.xlsx'
