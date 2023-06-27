@@ -656,6 +656,30 @@ CPItrim<-indexes_sa %>%
          trim_w=ifelse(cum_w>80 & lag(cum_w<80),80-lag(cum_w,1),trim_w)) %>% # the StatCan approach
   filter(trim_w!=0) %>%
   summarise(change=weighted.mean(change,trim_w))
+
+# Construct CPI trim core services ex shelter
+CPItrim_CoreServeExShelter<-indexes_sa %>%
+  left_join(weights,by=c("date","product")) %>%
+  filter(product!="Consumer Price Index (CPI), all-items excluding the effect of indirect taxes") %>%
+  group_by(date) %>%
+  mutate(core_serve_ex_shelter=ifelse(
+    row_number() %in% c(8,20,21,24,28,32,37,38,39,40,
+                        42,44,45,48,49,50,51,53),1,0)) %>%
+  group_by(product) %>%
+  mutate(change=index/lag(index,1)) %>%
+  group_by(date) %>%
+  arrange(date,change) %>%
+  group_by(date) %>%
+  mutate(cum_w=cumsum(w),
+         trim_w=ifelse(cum_w<20 | cum_w>80,0,w),
+         trim_w=ifelse(cum_w>20 & lag(cum_w<20),cum_w-20,trim_w),
+         trim_w=ifelse(cum_w>80 & lag(cum_w<80),80-lag(cum_w,1),trim_w)) %>% # the StatCan approach
+  filter(core_serve_ex_shelter==1) %>%
+  filter(trim_w!=0,core_serve_ex_shelter==1) %>%
+  summarise(change=weighted.mean(change,trim_w),
+            w_tot=sum(w)) %>%
+  filter(date>="Jan 1990") %>%
+  mutate(index=cumprod(change))
 plotdata<-CPImedian %>%
   select(date,CPImedian=change) %>%
   left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
@@ -747,25 +771,30 @@ Source: Own calculations from Statistics Canada data for 55 products. Graph by @
        x="",y="Percent")
 ggsave("Plots/MedianTrimCommon_3mo.png",width=8,height=4)
 
-# Bank of Canada Preferred Measures (Median and Trim), 3-month moving average
+# Bank of Canada Preferred Measures (Median and Trim + supercore), 3-month moving average
 plotdata<-CPImedian %>%
   select(date,CPImedian=change) %>%
   left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
+  left_join(CPItrim_CoreServeExShelter %>% 
+              select(date,CPItrim_CoreServeExShelter=change),by='date') %>%
   filter(date>="Jan 2009") %>%
-  select(date,CPImedian,CPItrim) %>%
+  select(date,CPImedian,CPItrim,CPItrim_CoreServeExShelter) %>%
   gather(type,rate,-date) %>%
   group_by(type) %>%
   mutate(rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
-ggplot(plotdata %>% filter(date>="Jan 2020"),aes(date,rate,group=type,color=type))+
+ggplot(plotdata %>% filter(date>="Jan 2017"),aes(date,rate,group=type,color=type))+
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=-Inf,y=0.035,hjust=0,
            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
   geom_line(size=2)+
+  geom_hline(yintercept=0,size=1)+
   scale_y_continuous(label=percent)+
-  scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
-  scale_x_continuous(breaks=pretty_breaks(3))+
+  scale_color_manual(label=c("CPI-Median","CPI-Trim",
+                             "CPI-Trim Services, Ex Shelter"),
+                     values=col[1:3])+
+  scale_x_continuous(breaks=pretty_breaks(6))+
   labs(title="3-Month Average Annual Change in the Bank of Canada's Core Inflation Measures",
-       subtitle="Reflects the 3-month average annualized change in CPI-median and CPI-trim",
+       subtitle="Reflects the 3-month average annualized change in selected Bank of Canada core measures of inflation",
        caption='Source: own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
        x="",y="Percent")
 ggsave("Plots/MedianTrim_3mo.png",width=8,height=4)
