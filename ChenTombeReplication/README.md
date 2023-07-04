@@ -1,8 +1,8 @@
 # Replication Files for Chen and Tombe (2023)
 
-*Canadian Public Policy, forthcoming*
+*Canadian Public Policy* 49(2): 197-217.
 
-The latest version is available as a PDF [here](Chen_and_Tombe_2023.pdf).
+The latest working paper version is available as a PDF [here](Chen_and_Tombe_2023.pdf). The published paper is available [here](https://www.utpjournals.press/toc/cpp/49/2).
 
 Brief description of included files:
 
