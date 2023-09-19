@@ -156,63 +156,45 @@ write.csv(plotdata %>% select(Date=Ref_Date,
 
 # Decomposition of Specific Contributors
 # https://www.oecd.org/sdd/prices-ppp/OECD-calculation-contributions-annual-inflation.pdf
-decomp_cpi<-data %>%
-  filter(GEO=="Canada") %>%
-  select(Ref_Date,product=Products.and.product.groups,Value) %>%
-  left_join(link_months,by="Ref_Date") %>%
-  filter(!is.na(basket)) %>%
-  left_join(weights_monthly,by=c("product","basket")) %>%
-  group_by(Ref_Date) %>%
-  mutate(all=weighted.mean(Value,product=="All-items")) %>%
-  group_by(product) %>%
-  mutate(period=cumsum(ifelse(Ref_Date==link_month,1,0))) %>%
-  group_by(product,period) %>%
-  mutate(I_atlink=Value[1],
-         all_atlink=all[1]) %>%
-  group_by(product) %>%
-  mutate(cpi=all/lag(all,12)-1,
-         relimp=(w/100)*(Value/I_atlink)/(all/all_atlink), # relative importance
-         relimp_old=lag(relimp,12), # relative importance using weights and prices from t-12
-         relimp_new=(w/100)*(lag(Value,12)/I_atlink)/(lag(all,12)/all_atlink)) %>% # relative importance using current weights but t-12 prices) %>%
-  mutate(effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
-         change=Value/lag(Value,12)-1,
-         contrib=(1+change)*effective_weight-relimp_old, # main estimate
-         excluding_item=(cpi-contrib)/(1-effective_weight))
 plotdata<-decomp_cpi %>%
   filter(product %in% c("Food purchased from stores",
                         "Energy",
-                        "Household furnishings and equipment",
-                        "Rented accommodation","Owned accommodation",
-                        "Purchase and leasing of passenger vehicles",
-                        "Purchase of recreational vehicles and outboard motors")) %>%
+                        "Rented accommodation",
+                        "Owned accommodation","Water",
+                        "Goods excluding food purchased from stores and energy")) %>%
   group_by(Ref_Date) %>%
   mutate(total=sum(contrib),
-         `All Other Items`=cpi-total) %>%
-  select(Ref_Date,product,contrib,`All Other Items`,cpi) %>%
+         `Services ex shelter`=cpi-total) %>%
+  select(Ref_Date,product,contrib,`Services ex shelter`,cpi) %>%
   spread(product,contrib) %>%
   gather(product,contrib,-Ref_Date,-cpi) %>%
-  mutate(product=ifelse(product %in% c("Purchase of recreational vehicles and outboard motors",
-                                       "Purchase and leasing of passenger vehicles"),
-                        "New Vehicles",product)) %>%
+  mutate(product=ifelse(product %in% c("Rented accommodation",
+                                       "Owned accommodation","Water"),
+                        "Shelter ex energy",product)) %>%
   group_by(Ref_Date,product) %>%
   summarise(contrib=sum(contrib),
             cpi=mean(cpi)) %>%
   ungroup() %>%
-  filter(Ref_Date>="Jan 2018") %>%
+  filter(Ref_Date>="Jan 2015") %>%
   mutate(product=case_when(
-    product=="Food purchased from stores" ~ "Food (groceries)",
-    product=="Household furnishings and equipment" ~ "Furniture and household equip.",
-    product=="Homeowners' replacement cost" ~ "Homeowners' depreciation",
+    product=="Food purchased from stores" ~ "Groceries",
+    product=="Goods excluding food purchased from stores and energy" ~ "Goods ex groceries/energy",
     TRUE ~ product
   )) %>%
-  filter(!is.na(cpi))
+  filter(!is.na(cpi)) %>%
+  mutate(product=factor(product,levels=c("Services ex shelter",
+                                         "Shelter ex energy",
+                                         "Groceries",
+                                         "Goods ex groceries/energy",
+                                         "Energy"))) # ensure negatives are at bottom
 dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack')+
-  geom_line(aes(y=cpi),size=2)+
+  geom_hline(yintercept=0,size=1)+
+  geom_line(aes(y=cpi),size=1.5)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
-  theme(plot.margin = unit(c(0.25,8,0.25,0.25),"lines"),
+  theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
         legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
@@ -220,15 +202,18 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_label(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
                arrange(desc(product)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
-                      location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
+                      shift=-contrib[1],
+                      location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2+shift,location),
+                      location=ifelse(product=="Energy",-0.005,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
              hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
-  annotate('text',x=2021.5,hjust=1,y=0.045,label="All-Items CPI",size=3)+
-  labs(x="",y="Year-over-Year Change",
+  annotate('text',x=2021.5,hjust=1,y=0.05,label="All-Items CPI",size=3)+
+  labs(x="",
        title="Contribution of Selected Products to Canada's Inflation Rate",
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
-       caption="Graph by @trevortombe")
+       caption="Graph by @trevortombe",
+       y="Year-over-Year Change")
 gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
