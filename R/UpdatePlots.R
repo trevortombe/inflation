@@ -553,12 +553,11 @@ ggsave("Plots/EnergyShelterEffect.png",width=8,height=4)
 plotdata<-data2 %>%
   group_by(Products.and.product.groups,GEO) %>%
   mutate(YoY=Value/lag(Value,12)-1) %>%
-  filter(Products.and.product.groups %in% c("All-items","All-items excluding food and energy"),
+  filter(Products.and.product.groups=="All-items",
          Ref_Date>="Jan 2000",GEO=="Canada") %>% 
   mutate(month=month(Ref_Date)) %>%
   filter(Ref_Date>="Jan 2019") %>%
   mutate(row=1:n()) %>%
-  filter(Products.and.product.groups=="All-items") %>%
   select(Ref_Date,Value,row) %>%
   mutate(avg=(Value/Value[1])^(12/row)-1,
          months_since_covid=12*(Ref_Date-as.yearmon("Feb 2020")),
@@ -571,16 +570,16 @@ ggplot(plotdata,aes(Ref_Date,Value))+
   geom_line(size=2,color=col[2])+
   geom_line(data=filter(plotdata,Ref_Date>="Feb 2020"),aes(y=target),size=2,color=col[3],
             linetype='dotted')+
-  annotate('text',x=2022.5,y=138,
-           label="Bank of Canada\nTarget Range",color='gray',fontface='bold')+
-  annotate('text',x=2020.5,y=142,hjust=1,label="Mid-Point 2% Target",color=col[3],fontface='bold')+
+  annotate('text',x=2023,y=138,
+           label="Bank of Canada's\nControl Range",color='gray80',fontface='bold')+
+  annotate('text',x=2020.5,y=142,hjust=1,label="2% Inflation Target",color=col[3],fontface='bold')+
   annotate('text',x=2021,y=137,hjust=0,label="Price Level Data",color=col[2],fontface='bold')+
-  annotate('text',x=2021.5,y=152.5,hjust=1,color=col[1],
+  annotate('text',x=2022,y=157.5,hjust=1,color=col[1],
            label=paste("Price levels are now",
                        percent(filter(plotdata,Ref_Date==max(Ref_Date))$Value/
                                  filter(plotdata,Ref_Date==max(Ref_Date))$target-1,.1),
                        "\nhigher than if BoC target met"))+
-  geom_segment(x=2021.6,xend=2022.2,y=152.5,yend=152.5,color=col[1],
+  geom_segment(x=2022.1,xend=2023.2,y=157.5,yend=157.5,color=col[1],
                arrow=arrow(length=unit(1.5,'mm')))+
   labs(title="Path of the Consumer Price Index in Canada",x="",y="CPI Index (2002 = 100)",
        subtitle="Source: own calculations from Statistics Canada data table 18-10-0006",

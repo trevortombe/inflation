@@ -68,10 +68,44 @@ link_months<-data.frame(
     Ref_Date>="Dec 2016" & Ref_Date<"Dec 2018" ~ 2015,
     Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
-    Ref_Date>="May 2022" ~ 2021
+    Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
+    Ref_Date>="May 2023" ~ 2022
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
+
+# Decompose using appropriate basket weights
+decomp_cpi<-data %>%
+  filter(GEO=="Canada") %>%
+  select(Ref_Date,product=Products.and.product.groups,Value) %>%
+  left_join(link_months,by="Ref_Date") %>%
+  filter(!is.na(basket)) %>%
+  left_join(weights_monthly,by=c("product","basket")) %>%
+  group_by(Ref_Date) %>%
+  mutate(all=weighted.mean(Value,product=="All-items")) %>%
+  group_by(product) %>%
+  mutate(period=cumsum(ifelse(Ref_Date==link_month,1,0))) %>%
+  group_by(product,period) %>%
+  mutate(I_atlink=Value[1],
+         all_atlink=all[1]) %>%
+  group_by(product) %>%
+  mutate(cpi=all/lag(all,12)-1,
+         relimp=(w/100)*(Value/I_atlink)/(all/all_atlink), # relative importance
+         relimp_old=lag(relimp,12), # relative importance using weights and prices from t-12
+         relimp_new=(w/100)*(lag(Value,12)/I_atlink)/(lag(all,12)/all_atlink)) %>% # relative importance using current weights but t-12 prices) %>%
+  mutate(contrib_old=(I_atlink/lag(Value,12)-1)*relimp_old, #statcan, https://www150.statcan.gc.ca/n1/pub/62-553-x/2019001/chap-8-eng.htm
+         contrib_new=(Value/I_atlink-1)*(w/100)*(all_atlink/lag(all,12)), #statcan, https://www150.statcan.gc.ca/n1/pub/62-553-x/2019001/chap-8-eng.htm
+         contrib_cross=contrib_new+contrib_old, 
+         contrib_nocross=(Value/lag(Value,12)-1)*relimp_old, 
+         contrib_check=ifelse(basket!=lag(basket,12),contrib_cross,contrib_nocross), # verify statcan same as your main approach
+         effective_weight=(relimp_old/(Value/I_atlink)+(1-1/(Value/I_atlink))*relimp_new), # an intuitive way? same as statcan approach
+         change=Value/lag(Value,12)-1,
+         MoM=Value/lag(Value,1)-1,
+         contrib=(1+change)*effective_weight-relimp_old, # main estimate
+         value_if_2prc=lag(Value,12)*1.02,
+         weight_if_2prc=(relimp_old/(value_if_2prc/I_atlink)+(1-1/(value_if_2prc/I_atlink))*relimp_new),
+         contrib_if_2prc=1.02*weight_if_2prc-relimp_old,
+         excluding_item=(cpi-contrib)/(1-effective_weight))
 
 # The Bank of Canada Preferred Core Measures Product-Level Data
 data_sa<-read_excel("Data/Core_Measures_Inputs_External_E&F.xlsx",
