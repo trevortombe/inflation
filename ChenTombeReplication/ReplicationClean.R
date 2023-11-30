@@ -328,7 +328,7 @@ real_change<-pce_data_new %>%
          !grepl("Cannabis",Estimates),
          `Seasonal adjustment`=="Seasonally adjusted at quarterly rates",
          Ref_Date>="Jan 1981", # when the detailed data starts
-         Prices=="2012 constant prices") %>%
+         Prices=="2017 constant prices") %>%
   group_by(Estimates) %>%
   mutate(qty_change=Value/lag(Value,1),
          qty_change_yoy=Value/lag(Value,4),
