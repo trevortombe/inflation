@@ -32,4 +32,4 @@ This repo contains several regularly updated calculations to better understand C
 
 ---
 
-![](Plots/gas_tax_ab.png)
+![](Plots/gas_tax_mb.png)
