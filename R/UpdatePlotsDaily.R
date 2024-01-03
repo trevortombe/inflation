@@ -45,7 +45,6 @@ ggsave("Plots/Bitcoin.png",width=8,height=4)
 # Approximate city populations
 city_pop<-read_excel('Data/city_population.xlsx')
 
-
 # Gas Tax Holiday in Manitoba, Jan 1, 2024
 start="2023-10-01" # pre-tretment start
 url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2023/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2023.xlsx'
@@ -164,7 +163,6 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
            label=paste0("  Price Gap\n  Estimate for\n  ",
                         gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
                         ":\n  ",change),hjust=0)+
-  mytheme+
   labs(x="",y="Cents per Litre",
        title="Effect of Suspending the Manitoba Gas Tax on Prices",
        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
@@ -291,7 +289,6 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
            label=paste0("  Price Gap\n  Estimate for\n  ",
                         gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
                         ":\n  ",change),hjust=0)+
-  mytheme+
   labs(x="",y="Cents per Litre",
        title="Effect of Suspending the Manitoba Gas Tax on Prices",
        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
