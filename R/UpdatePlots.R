@@ -597,7 +597,7 @@ plotdata<-data2 %>%
   mutate(Products.and.product.groups=ifelse(Products.and.product.groups=="Alcoholic beverages, tobacco products and recreational cannabis",
                                             "Alcohol and Tobacco",Products.and.product.groups),
          Products.and.product.groups=ifelse(Products.and.product.groups=="Household operations, furnishings and equipment",
-                                            "Household, furniture/eauip.",Products.and.product.groups),
+                                            "Household, furniture/equip.",Products.and.product.groups),
          Products.and.product.groups=ifelse(Products.and.product.groups=="Recreation, education and reading",
                                             "Recreation, education",Products.and.product.groups))
 ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
