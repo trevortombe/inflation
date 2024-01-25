@@ -31,19 +31,21 @@ ggplot(plotdata %>%
          filter(Ref_Date>="Jan 2015"),aes(Ref_Date,(1+YoY)-1,group=Products.and.product.groups,
                                           color=Products.and.product.groups))+
   geom_hline(yintercept=0,size=1)+
-  geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),alpha=0.5,fill=col[3],
+  geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),fill='gray80',
               inherit.aes = F)+
-  geom_line(linewidth=2)+
-  annotate('text',x=2020.5,y=.04,label="Range of Core\nBoC Measures",
-           color=col[3],fontface='bold',alpha=0.6)+
-  scale_color_brewer(name="",palette="Set1")+
+  geom_line(size=2)+
+  annotate('text',x=2019,y=0.04,label="Range of Core\nBoC Measures",
+           color='gray50',fontface='bold')+
+  geom_curve(x=2019.75,xend=2020.6,y=0.04,yend=0.023,
+             curvature = -0.3,color='gray50',size=0.5,
+             arrow=arrow(length=unit(1,'mm')))+
   labs(x="",y="Per Cent Change, YoY")+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6))+
   labs(x="",y="Per Cent",
        title="Year-over-Year Change in Consumer Prices in Canada",
        caption="Graph by @trevortombe",
-       subtitle="Source: Own calculations from Statistics Canada data table 18-10-0004 and 18-10-0256")
+       subtitle="Source: Own calculations from Statistics Canada data table 18-10-0004")
 ggsave('Plots/CoreInflation.png',width=8,height=4)
 
 # Inflation Expectations
