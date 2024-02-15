@@ -70,7 +70,8 @@ link_months<-data.frame(
     Ref_Date>="Dec 2016" & Ref_Date<"Dec 2018" ~ 2015,
     Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
-    Ref_Date>="May 2022" ~ 2021
+    Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
+    Ref_Date>="May 2023" ~ 2022
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
@@ -574,7 +575,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2022))+
+  scale_x_continuous("",breaks=seq(2017,2024,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -602,7 +603,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2022))+
+  scale_x_continuous("",breaks=seq(2017,2024,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -630,7 +631,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2022))+
+  scale_x_continuous("",breaks=seq(2017,2024,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -691,7 +692,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_grid(rows=vars(category2),cols=vars(category))+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2016,2022,1))+
+  scale_x_continuous("",breaks=seq(2017,2024,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
