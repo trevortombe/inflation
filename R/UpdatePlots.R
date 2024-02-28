@@ -33,7 +33,7 @@ ggplot(plotdata %>%
   geom_hline(yintercept=0,size=1)+
   geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),fill='gray80',
               inherit.aes = F)+
-  geom_line(size=2)+
+  geom_line(linewidth=2)+
   annotate('text',x=2019,y=0.04,label="Range of Core\nBoC Measures",
            color='gray50',fontface='bold')+
   geom_curve(x=2019.75,xend=2020.6,y=0.04,yend=0.023,
@@ -60,7 +60,7 @@ plotdata<-yields %>%
   mutate(break_even=(1+nom/100)/(1+real/100)-1) %>%
   drop_na()
 ggplot(plotdata,aes(date,break_even))+
-  geom_line(size=1,color=col[1])+
+  geom_line(linewidth=1,color=col[1])+
   geom_hline(yintercept=0,size=1)+
   geom_text(data=filter(plotdata,date==max(date)),color=col[1],nudge_x=180,
             hjust=0,aes(label=paste0("Latest:",
@@ -88,7 +88,7 @@ temp<-data %>%
   summarise(above=mean(above),
             median=median(change))
 ggplot(temp,aes(Ref_Date,above))+
-  geom_line(size=2,color=col[1])+
+  geom_line(linewidth=2,color=col[1])+
   geom_hline(yintercept=0,size=1)+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6))+
@@ -139,8 +139,8 @@ plotdata<-data %>%
   filter(Ref_Date>="Jan 2010")
 ggplot(plotdata,aes(Ref_Date))+
   geom_hline(yintercept=0,size=1,color='gray')+
-  geom_line(aes(y=excluding,color="Trevor's Not Terrible Calculation"),size=1.5)+
-  geom_line(aes(y=actual,color="Actual Series, Terminated :("),size=1.5)+
+  geom_line(aes(y=excluding,color="Trevor's Not Terrible Calculation"),linewidth=1.5)+
+  geom_line(aes(y=actual,color="Actual Series, Terminated :("),linewidth=1.5)+
   labs(title="CPI Change for Services Excluding Shelter Services",
        caption="Graph by @trevortombe",
        x="",y="Percent Change (YoY)",
@@ -193,7 +193,7 @@ dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack')+
   geom_hline(yintercept=0,size=1)+
-  geom_line(aes(y=cpi),size=1.5)+
+  geom_line(aes(y=cpi),linewidth=1.5)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
   theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
@@ -341,7 +341,7 @@ temp<-decomp_cpi %>%
   ungroup() %>%
   filter(Ref_Date==max(Ref_Date)) %>%
   select(Ref_Date,product,change,total,share) %>%
-  left_join(product_list)
+  left_join(product_list,by="product")
 plotdata<-temp %>%
   filter(product %in% filter(top_contrib,row_number()<=5)$product) %>%
   group_by(Ref_Date) %>%
@@ -535,8 +535,9 @@ plotdata<-decomp_cpi %>%
   mutate(excluding=(cpi-contrib)/(1-weight)) %>%
   filter(Ref_Date>="Jan 1990")
 ggplot(plotdata,aes(Ref_Date))+
-  geom_line(aes(y=cpi,color="All-Items"),size=2)+
-  geom_line(aes(y=cpi-contrib,color="Counterfactual with No Change in Energy / Shelter Prices"),size=2)+
+  geom_line(aes(y=cpi,color="All-Items"),linewidth=2)+
+  geom_line(aes(y=cpi-contrib,color="Counterfactual with No Change in Energy / Shelter Prices"),
+            linewidth=2)+
   geom_text(data=filter(plotdata,Ref_Date==max(Ref_Date)),fontface='bold',
             aes(label=percent(cpi,0.1),y=cpi),hjust=0,nudge_x=0.5,color=col[1])+
   geom_text(data=filter(plotdata,Ref_Date==max(Ref_Date)),fontface='bold',
@@ -569,8 +570,8 @@ plotdata<-data2 %>%
 ggplot(plotdata,aes(Ref_Date,Value))+
   geom_ribbon(data=filter(plotdata,Ref_Date>="Feb 2020"),
               aes(ymin=lower,ymax=upper),fill='gray',alpha=0.5)+
-  geom_line(size=2,color=col[2])+
-  geom_line(data=filter(plotdata,Ref_Date>="Feb 2020"),aes(y=target),size=2,color=col[3],
+  geom_line(linewidth=2,color=col[2])+
+  geom_line(data=filter(plotdata,Ref_Date>="Feb 2020"),aes(y=target),linewidth=2,color=col[3],
             linetype='dotted')+
   annotate('text',x=2023,y=138,
            label="Bank of Canada's\nControl Range",color='gray80',fontface='bold')+
@@ -609,7 +610,7 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                   aes(label=Products.and.product.groups),hjust=0,
                   direction='y',nudge_x=0.05,size=3,
                   show.legend = F,segment.alpha=0)+
-  geom_line(size=2,show.legend=F)+
+  geom_line(linewidth=2,show.legend=F)+
   scale_y_continuous(label=percent)+
   scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1.5),
                   breaks=pretty_breaks(6),format="%b\n%Y")+
@@ -677,7 +678,7 @@ plotdata<-CPImedian %>%
 ggplot(plotdata,aes(date,rate,group=type,color=type))+
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=min(plotdata$date),y=0.035,label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
-  geom_line(size=1.5)+
+  geom_line(linewidth=1.5)+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Median","CPI-Trim"),values=col[1:2])+
   scale_x_continuous(breaks=pretty_breaks(5))+
@@ -746,7 +747,7 @@ ggplot(plotdata %>% filter(date>="Jan 2018"),aes(date,rate,group=type,color=type
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=-Inf,y=0.035,hjust=0,
            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
-  geom_line(size=2)+
+  geom_line(linewidth=2)+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Common *","CPI-Median","CPI-Trim"),values=col[1:3])+
   scale_x_continuous(breaks=pretty_breaks(3))+
@@ -772,7 +773,7 @@ ggplot(plotdata %>% filter(date>="Jan 2017"),aes(date,rate,group=type,color=type
   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
   annotate('text',x=-Inf,y=0.035,hjust=0,
            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
-  geom_line(size=2)+
+  geom_line(linewidth=2)+
   geom_hline(yintercept=0,size=1)+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Median","CPI-Trim",
