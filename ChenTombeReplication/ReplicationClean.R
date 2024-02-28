@@ -152,7 +152,8 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
                       location=ifelse(product=="Energy",-0.005,location),
-                      location=ifelse(product=="All Other Items",0.04,location),
+                      location=ifelse(product=="Food (groceries)",0.024,location),
+                      location=ifelse(product=="All other items",0.03,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
              hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
@@ -165,6 +166,10 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Figures/Figure1.png",gt,width=8,height=4)
+
+# Save Figure 1 data in a text file
+write.csv(plotdata %>%
+  spread(product,contrib),"Figures/Figure1_data.csv",row.names = F)
 
 # Figure 2: Sensitivity of individual components to oil prices
 oil_change<-wti %>%
