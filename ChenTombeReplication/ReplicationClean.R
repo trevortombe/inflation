@@ -294,7 +294,7 @@ plotdata<-cpi_data %>%
   left_join(price_change,by="Ref_Date") %>%
   filter(Ref_Date>="1962 Q1",Ref_Date<=max(price_change$Ref_Date)) %>%
   gather(type,val,-Ref_Date)
-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
+p<-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
   geom_line(size=2,show.legend = F)+
   geom_hline(yintercept=0,size=1)+
   scale_x_continuous(breaks=pretty_breaks(6))+
@@ -302,10 +302,11 @@ ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
   annotate('text',x=1985,hjust=0,y=0.09,label="PCE Inflation",color=col[2],fontface='bold')+
   scale_y_continuous(label=percent,expand=c(0,0),limit=c(NA,0.145),breaks=pretty_breaks(6))+
   labs(x="",
-       title="Two Measures of Inflation in Canada",
-       subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004 and 36-10-0107",
        y="Per Cent")
-ggsave("Figures/Figure3.png",width=8,height=4)
+ggsave("Figures/Figure3.png",p+labs(title="Two Measures of Inflation in Canada",
+                                    subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004 and 36-10-0107"),
+       width=8,height=4)
+ggsave("Figures/Figure3.eps",p,width=8,height=4)
 
 # Construct the supply/demand classifications using VAR estimates
 products_aggregate<-c("Food and non-alcoholic beverages",
@@ -447,7 +448,7 @@ p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
                       labelname=gsub(" ","\n  ",type)),
              aes(label=paste0("  ",type),y=location,color=type),
              hjust=0,nudge_x=1/6,fontface="bold",size=3,fill='white',label.size = 0)+
-  scale_x_yearmon(format='%Y')+
+  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6))+
   scale_y_continuous(label=percent,breaks=pretty_breaks(6))+
   annotate('text',x=2021.65,hjust=1,label="Annual PCE Inflation",size=3,y=.055)+
   labs(x="",
@@ -458,6 +459,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Figures/Figure5a.png",gt,width=8,height=4)
+ggsave("~/SupplyDemand_Annual.eps",gt,width=8,height=4)
 
 # Figure 5b: Quarterly PCE Inflation
 dev.off()
@@ -478,7 +480,7 @@ p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
                       labelname=gsub(" ","\n  ",type)),
              aes(label=paste0("  ",type),y=location,color=type),
              hjust=0,nudge_x=1/6,fontface="bold",size=3,fill='white',label.size = 0)+
-  scale_x_yearmon(format='%Y')+
+  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6))+
   scale_y_continuous(label=percent,breaks=pretty_breaks(6))+
   annotate('text',x=2021.65,hjust=1,label="Quarterly PCE Inflation",size=3,y=.0175)+
   labs(x="",
@@ -489,6 +491,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("Figures/Figure5b.png",gt,width=8,height=4)
+ggsave("~/SupplyDemand_Quarterly.eps",gt,width=8,height=4)
 
 # Save csv of the results - annual
 write.csv(results %>% select(Date=Ref_Date,contrib_annual,
@@ -585,6 +588,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("Figures/Figure6.png",width=8,height=4)
+ggsave("~/GoodServices.eps",width=8,height=4)
 
 # Figure 7: Energy Intensive or Not
 plotdata<-unexp_shocks %>%
@@ -613,6 +617,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("Figures/Figure7.png",width=8,height=4)
+ggsave("~/Figure7.eps",width=8,height=4)
 
 # Figure 8: Traded vs Non-Traded
 plotdata<-unexp_shocks %>%
@@ -641,6 +646,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("Figures/Figure8.png",width=8,height=4)
+ggsave("~/Traded.eps",width=8,height=4)
 
 #############
 # Section 4 #
@@ -702,6 +708,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
 ggsave("Figures/Figure10.png",width=8,height=8)
+ggsave("~/MonPolSensitivePersist.eps",width=8,height=8)
 
 #################
 # Section 3.5.4 #
