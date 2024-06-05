@@ -217,7 +217,7 @@ plot<-regdata %>%
   filter(Ref_Date>="Jan 2017") %>%
   group_by(Ref_Date) %>%
   mutate(contrib=contrib/sum(effective_weight)) %>% ungroup()
-dev.off()
+while (!is.null(dev.list()))  dev.off()
 p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   geom_line(data=decomp_cpi %>%
@@ -429,7 +429,7 @@ results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categorie
   mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
 
 # Figure 5a: Annual PCE Inflation
-dev.off()
+while (!is.null(dev.list()))  dev.off()
 p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(aes(Ref_Date,PCE_annual),size=2)+
@@ -460,7 +460,7 @@ grid.draw(gt)
 ggsave("ChenTombeReplication/Figures/Figure5a.png",gt,width=8,height=4)
 
 # Figure 5b: Quarterly PCE Inflation
-dev.off()
+while (!is.null(dev.list()))  dev.off()
 p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
   geom_col(position='stack',size=0.05,color='white')+
   geom_line(aes(Ref_Date,PCE),size=2,color='black',inherit.aes = F)+
