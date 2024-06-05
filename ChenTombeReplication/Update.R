@@ -136,7 +136,7 @@ plotdata<-decomp_cpi %>%
     TRUE ~ product
   )) %>%
   filter(!is.na(cpi))
-dev.off()
+while (!is.null(dev.list()))  dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack',size=0.05,color='white')+
   geom_line(aes(y=cpi),size=2)+
@@ -306,7 +306,6 @@ p<-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
 ggsave("ChenTombeReplication/Figures/Figure3.png",p+labs(title="Two Measures of Inflation in Canada",
                                     subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004 and 36-10-0107"),
        width=8,height=4)
-ggsave("ChenTombeReplication/Figures/Figure3.eps",p,width=8,height=4)
 
 # Construct the supply/demand classifications using VAR estimates
 products_aggregate<-c("Food and non-alcoholic beverages",
