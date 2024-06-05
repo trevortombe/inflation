@@ -2,7 +2,8 @@
 rm(list=ls(all=TRUE)) 
 
 # Install Packages and Load
-packages<-c("scales","zoo","dplyr","gt","testit","data.table","ggseas",
+packages<-c("broom","vars","kableExtra","tidyverse",
+            "scales","zoo","dplyr","gt","testit","data.table","ggseas",
             "webshot","httr","readxl","ggrepel","treemapify","lubridate",
             "ggplot2","ggthemes","tidyr","grid","fredr","cansim")
 check.packages <- function(pkg){
