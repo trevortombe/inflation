@@ -1,4 +1,4 @@
-source('ChenTombeReplication/Setup.R')
+source('R/Setup.R')
 
 ##########################
 # Load the Required Data #
