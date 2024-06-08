@@ -4,10 +4,6 @@ source('R/Setup.R')
 # Load the Required Data #
 ##########################
 
-# The old vintage of data used in the paper: load('Files/DataForPaper.RData')
-# This may differ from later updates due to StatCan data revisions.
-# Either load the old data or run the 'get_cansim' functions below
-
 # Monthly CPI
 cpi_data<-get_cansim("18100004") %>%
   mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
@@ -126,8 +122,7 @@ plotdata<-decomp_cpi %>%
                         "Furniture/Equip./Vehicles",product)) %>%
   group_by(Ref_Date,product) %>%
   summarise(contrib=sum(contrib),
-            cpi=mean(cpi)) %>%
-  ungroup() %>%
+            cpi=mean(cpi),.groups = "drop") %>%
   filter(Ref_Date>="Jan 2017") %>%
   mutate(product=case_when(
     product=="Food purchased from stores" ~ "Food (groceries)",
@@ -139,7 +134,7 @@ plotdata<-decomp_cpi %>%
 while (!is.null(dev.list()))  dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack',size=0.05,color='white')+
-  geom_line(aes(y=cpi),size=2)+
+  geom_line(aes(y=cpi),linewidth=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
   theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
@@ -166,6 +161,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("ChenTombeReplication/Figures/Figure1.png",gt,width=8,height=4)
+print("Completed Figure 1")
 
 # Save Figure 1 data in a text file
 write.csv(plotdata %>%
@@ -212,8 +208,8 @@ plot<-regdata %>%
   group_by(Ref_Date,type) %>%
   summarise(contrib=sum(contrib),
             effective_weight=sum(effective_weight),
-            cpi=mean(cpi)) %>%
-  group_by(Ref_Date,type) %>% ungroup() %>%
+            cpi=mean(cpi),.groups='drop') %>%
+  group_by(Ref_Date,type) %>%
   filter(Ref_Date>="Jan 2017") %>%
   group_by(Ref_Date) %>%
   mutate(contrib=contrib/sum(effective_weight)) %>% ungroup()
@@ -249,6 +245,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("ChenTombeReplication/Figures/Figure2.png",gt,width=8,height=4)
+print("Completed Figure 2")
 
 #############
 # Section 3 #
@@ -306,6 +303,7 @@ p<-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
 ggsave("ChenTombeReplication/Figures/Figure3.png",p+labs(title="Two Measures of Inflation in Canada",
                                     subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004 and 36-10-0107"),
        width=8,height=4)
+print("Completed Figure 3")
 
 # Construct the supply/demand classifications using VAR estimates
 products_aggregate<-c("Food and non-alcoholic beverages",
@@ -379,8 +377,8 @@ for (p in prods){ # VAR models; rolling windows; product-specific
       filter(Ref_Date>=as.yearmon(d)-10, # 10-year rolling window
              Ref_Date<=as.yearmon(d),
              product==p)
-    yr_val=year(min(regdata$Ref_Date))
-    qtr_val=quarter(min(regdata$Ref_Date))
+    yr_val=year(as.Date(min(regdata$Ref_Date)))
+    qtr_val=quarter(as.Date(min(regdata$Ref_Date)))
     P<-ts(log(regdata$price_index),start=c(yr_val,qtr_val),frequency = 4)
     Q<-ts(log(regdata$qty_index),start=c(yr_val,qtr_val),frequency = 4)
     VAR_data <- window(ts.union(P, Q), start = c(yr_val,qtr_val))
@@ -404,8 +402,7 @@ for (p in prods){ # VAR models; rolling windows; product-specific
       )
   }
 }
-# confirm that roughly 20% of observations are ambiguous
-unexp_shocks %>% summarise(share=mean(1*(type=="Ambiguous")))
+print("Completed the VAR estimates")
 
 # Gather the results to generate the main figures / results
 classify_types<-read.csv("ChenTombeReplication/Files/product_list.csv")
@@ -415,7 +412,7 @@ results<-price_change %>%
   left_join(classify_types,by="product") %>% 
   group_by(Ref_Date,type) %>%
   summarise(contrib=sum(contrib),
-            PCE=mean(PCE))
+            PCE=mean(PCE),.groups='drop')
 results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categories are present
             type=unique(results$type)) %>%
   left_join(results,by=c("Ref_Date","type")) %>%
@@ -458,6 +455,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("ChenTombeReplication/Figures/Figure5a.png",gt,width=8,height=4)
+print("Completed Figure 5a")
 
 # Figure 5b: Quarterly PCE Inflation
 while (!is.null(dev.list()))  dev.off()
@@ -489,6 +487,7 @@ gt <- ggplotGrob(p)
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ggsave("ChenTombeReplication/Figures/Figure5b.png",gt,width=8,height=4)
+print("Completed Figure 5b")
 
 # Save csv of the results - annual
 write.csv(results %>% select(Date=Ref_Date,contrib_annual,
@@ -500,6 +499,7 @@ write.csv(results %>% select(Date=Ref_Date,contrib,
                              type,PCE) %>%
             spread(type,contrib) %>%
             mutate(Date=as.yearqtr(Date)),"ChenTombeReplication/Files/Results_2010_Latest_Quarterly.csv",row.names = F)
+print("Saved the annual and quarterly CSV files")
 
 # Table 1: Top Contributors to Annual PCE Inflation (Latest Quarter)
 top_contributors<-price_change %>%
@@ -552,6 +552,7 @@ table<-data.frame(table1,table2) %>% # Shorten selected product names
   )
 table
 write.table(table,'ChenTombeReplication/Figures/Table1.txt',row.names = F)
+print("Completed Table 1")
 
 ###############
 # Section 3.5 #
@@ -562,7 +563,7 @@ plotdata<-unexp_shocks %>%
   left_join(classify_types %>% dplyr::select(product,category=good_service),by=c("product")) %>%
   left_join(price_change,by=c("Ref_Date","product")) %>%
   group_by(Ref_Date,type,category) %>%
-  summarise(contrib=sum(contrib))
+  summarise(contrib=sum(contrib),.groups = 'drop')
 plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
              type=unique(plotdata$type),
              category=unique(plotdata$category)) %>%
@@ -585,6 +586,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("ChenTombeReplication/Figures/Figure6.png",width=8,height=4)
+print("Completed Figure 6")
 
 # Figure 7: Energy Intensive or Not
 plotdata<-unexp_shocks %>%
@@ -594,7 +596,7 @@ plotdata<-unexp_shocks %>%
          category=ifelse(energy_share>=0.02,"Energy Intensive",category), # 75th percentile (weighted)
          category=ifelse(energy_share<0.02 & energy_share>0.005,"Moderately Energy Intensive",category)) %>%
   group_by(Ref_Date,type,category) %>%
-  summarise(contrib=sum(contrib))
+  summarise(contrib=sum(contrib),.groups = 'drop')
 plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
              type=unique(plotdata$type),
              category=unique(plotdata$category)) %>%
@@ -613,6 +615,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("ChenTombeReplication/Figures/Figure7.png",width=8,height=4)
+print("Completed Figure 7")
 
 # Figure 8: Traded vs Non-Traded
 plotdata<-unexp_shocks %>%
@@ -622,7 +625,7 @@ plotdata<-unexp_shocks %>%
          category=ifelse(import_share>=21.4,"Highly Traded",category), # 15 is the weighted median among traded items; 21.4 is the 75th percentile
          category=ifelse(import_share<21.4 & import_share>0,"Moderately Traded",category)) %>%
   group_by(Ref_Date,type,category) %>%
-  summarise(contrib=sum(contrib))
+  summarise(contrib=sum(contrib),.groups = 'drop')
 plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
              type=unique(plotdata$type),
              category=unique(plotdata$category)) %>%
@@ -641,6 +644,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
 ggsave("ChenTombeReplication/Figures/Figure8.png",width=8,height=4)
+print("Completed Figure 8")
 
 #############
 # Section 4 #
@@ -673,7 +677,7 @@ plotdata<-unexp_shocks %>%
   left_join(price_change,by=c("Ref_Date","product")) %>%
   left_join(classify_types %>% dplyr::select(product,category2=bank_influence),by=c("product")) %>% 
   group_by(Ref_Date,type,category,category2) %>%
-  summarise(contrib=sum(contrib))
+  summarise(contrib=sum(contrib),.groups = 'drop')
 plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
              type=unique(plotdata$type),
              category=unique(plotdata$category),
@@ -702,3 +706,4 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
 ggsave("ChenTombeReplication/Figures/Figure10.png",width=8,height=8)
+print("Completed Figure 10")
