@@ -31,6 +31,8 @@ product_list<-read.csv("ChenTombeReplication/Files/cpi_products.csv")
 wti<-fredr("MCOILWTICO")
 cdnusd<-fredr("DEXCAUS")
 
+print('Finished loading data')
+
 #############
 # Section 2 #
 #############
@@ -133,7 +135,7 @@ plotdata<-decomp_cpi %>%
   filter(!is.na(cpi))
 while (!is.null(dev.list()))  dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
-  geom_col(position='stack',size=0.05,color='white')+
+  geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(aes(y=cpi),linewidth=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
@@ -215,12 +217,12 @@ plot<-regdata %>%
   mutate(contrib=contrib/sum(effective_weight)) %>% ungroup()
 while (!is.null(dev.list()))  dev.off()
 p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
-  geom_col(position='stack',size=0.05,color='white')+
+  geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(data=decomp_cpi %>%
               filter(product=="All-items excluding energy",
                      Ref_Date>="Jan 2017") %>%
               dplyr::select(Ref_Date,change) %>% drop_na(),aes(Ref_Date,change),inherit.aes = F,
-            size=2)+
+            linewidth=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
   theme(plot.margin = unit(c(0.25,2,0.25,0.25),"lines"),
