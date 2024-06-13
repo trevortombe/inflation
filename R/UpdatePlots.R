@@ -12,7 +12,7 @@ source("R/GetData.R")
 plotdata<-data %>%
   filter(Products.and.product.groups %in% c("All-items","All-items excluding food and energy"),
          GEO=="Canada") %>%
-  group_by(Products.and.product.groups,GEO) %>%
+  group_by(Products.and.product.groups) %>%
   mutate(YoY=Value/lag(Value,12)-1) %>%
   select(Ref_Date,YoY,Products.and.product.groups) %>%
   left_join(
@@ -175,7 +175,7 @@ plotdata<-decomp_cpi %>%
                         "Shelter ex energy",product)) %>%
   group_by(Ref_Date,product) %>%
   summarise(contrib=sum(contrib),
-            cpi=mean(cpi)) %>%
+            cpi=mean(cpi),.groups = 'drop') %>%
   ungroup() %>%
   filter(Ref_Date>="Jan 2015") %>%
   mutate(product=case_when(
@@ -558,9 +558,9 @@ plotdata<-data2 %>%
   mutate(YoY=Value/lag(Value,12)-1) %>%
   filter(Products.and.product.groups=="All-items",
          Ref_Date>="Jan 2000",GEO=="Canada") %>% 
-  mutate(month=month(Ref_Date)) %>%
+  mutate(month=month(as.Date(Ref_Date))) %>%
   filter(Ref_Date>="Jan 2019") %>%
-  mutate(row=1:n()) %>%
+  mutate(row=1:n()) %>% ungroup() %>%
   select(Ref_Date,Value,row) %>%
   mutate(avg=(Value/Value[1])^(12/row)-1,
          months_since_covid=12*(Ref_Date-as.yearmon("Feb 2020")),
@@ -612,7 +612,7 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                   show.legend = F,segment.alpha=0)+
   geom_line(linewidth=2,show.legend=F)+
   scale_y_continuous(label=percent)+
-  scale_x_yearmon(limit=c(NA,year(max(plotdata$Ref_Date))+1.5),
+  scale_x_yearmon(limit=c(NA,year(as.Date(max(plotdata$Ref_Date)))+1.5),
                   breaks=pretty_breaks(6),format="%b\n%Y")+
   labs(x="",y="Per Cent Change",title="Price Changes in Canada, by Broad Product Category",
        subtitle="Displays the change in prices since February 2020, by major CPI item,
@@ -712,16 +712,16 @@ CPIcommon_index<-indexes_raw %>%
   filter(grepl("Consumer Price Index",product)) %>%
   select(-product) %>%
   mutate(index=as.numeric(index)) %>%
-  filter(year(date)==1989)
+  filter(year(as.Date(date))==1989)
 temp<-data.frame(
   date=as.yearmon("Jan 1990")+seq(0,length(allitems)-1)/12,
   CPIcommon=predict(lm(allitems~predict(prcomp(change,scale=T,center=T),newdata=change)[,1]))
 )
 results<-CPIcommon_index
-for (y in seq(1990,max(year(temp$date)))){
+for (y in seq(1990,max(year(as.Date(temp$date))))){
   temp2<-temp %>%
-    filter(year(date)==y) %>%
-    left_join(filter(results,year(date)==y-1) %>% mutate(date=date+1),by='date') %>%
+    filter(year(as.Date(date))==y) %>%
+    left_join(filter(results,year(as.Date(date))==y-1) %>% mutate(date=date+1),by='date') %>%
     mutate(index=(1+CPIcommon)*index) %>%
     select(date,index)
   results<-results %>%
