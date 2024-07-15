@@ -69,7 +69,8 @@ link_months<-data.frame(
     Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
     Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
-    Ref_Date>="May 2023" ~ 2022
+    Ref_Date>="May 2023" & Ref_Date<"May 2024" ~ 2022,
+    Ref_Date>="May 2024" ~ 2023
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
