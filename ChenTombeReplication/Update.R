@@ -745,7 +745,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
        title="Inflation Contributions by Labour Cost Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
        y="Per Cent")
-ggsave("ChenTombeReplication/Figures/FigureX_labour_share.png",width=8,height=8)
+ggsave("ChenTombeReplication/Figures/FigureX_labour_share.png",width=8,height=4)
 print("Completed labour share results")
 
 # Results based on labour intensity of items
@@ -784,5 +784,5 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
        title="Non-Shelter Services Inflation Contributions by Labour Cost Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
        y="Per Cent")
-ggsave("ChenTombeReplication/Figures/FigureX_labour_share_serv.png",width=8,height=8)
+ggsave("ChenTombeReplication/Figures/FigureX_labour_share_serv.png",width=8,height=4)
 print("Completed labour share results for non-shelter services")
