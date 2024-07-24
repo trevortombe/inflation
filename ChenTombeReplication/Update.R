@@ -69,7 +69,8 @@ link_months<-data.frame(
     Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
     Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
-    Ref_Date>="May 2023" ~ 2022
+    Ref_Date>="May 2023" & Ref_Date<"May 2024" ~ 2022,
+    Ref_Date>="May 2024" ~ 2023
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
@@ -709,3 +710,79 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
 ggsave("ChenTombeReplication/Figures/Figure10.png",width=8,height=8)
 print("Completed Figure 10")
+
+###################################################
+# Supplementary figures not included in the paper #
+###################################################
+
+# Results based on labour intensity of items
+plotdata<-unexp_shocks %>%
+  left_join(classify_types %>% dplyr::select(product,labour_share,core_noncore,good_service),by=c("product")) %>%
+  # filter(core_noncore=="core") %>%
+  left_join(price_change,by=c("Ref_Date","product")) %>%
+  mutate(category=ifelse(labour_share<=0.11,"Not Labour Intensive",NA), # 25th percentile (weighted)
+         category=ifelse(labour_share>=0.346,"Labour Intensive",category), # 75th percentile (weighted)
+         category=ifelse(labour_share<0.346 & labour_share>0.11,"Moderately Labour Intensive",category)) %>%
+  group_by(Ref_Date,type,category) %>%
+  summarise(contrib=sum(contrib))
+plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
+             type=unique(plotdata$type),
+             category=unique(plotdata$category)) %>%
+  left_join(plotdata,by=c("Ref_Date","type","category")) %>%
+  mutate(contrib=ifelse(is.na(contrib),0,contrib)) %>%
+  group_by(type,category) %>%
+  mutate(contrib_annual=rollsum(contrib,4,fill=NA,na.pad=F,align='right')) %>%
+  filter(Ref_Date>="Jan 2017") %>%
+  mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
+ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
+  geom_col(position='stack',size=0.05,color='white')+
+  facet_grid(cols=vars(category))+
+  theme(legend.position = 'bottom')+
+  scale_x_continuous("",breaks=seq(2017,2024))+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))+
+  scale_y_continuous(label=percent)+
+  labs(x="",
+       title="Inflation Contributions by Labour Cost Intensity",
+       subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
+       y="Per Cent")
+ggsave("ChenTombeReplication/Figures/FigureX_labour_share.png",width=8,height=8)
+print("Completed labour share results")
+
+# Results based on labour intensity of items
+plotdata<-unexp_shocks %>%
+  left_join(classify_types %>% dplyr::select(product,labour_share,core_noncore,good_service),by=c("product")) %>%
+  filter(good_service=="service") %>%
+  filter(!product %in% c("Paid rental fees for housing",
+                         "Imputed rental fees for housing",
+                         "Materials for the maintenance and repair of the dwelling",
+                         "Services for the maintenance and repair of the dwelling",
+                         "Water supply and sanitation services",
+                         "Electricity",
+                         "Gas")) %>%
+  left_join(price_change,by=c("Ref_Date","product")) %>%
+  mutate(category=ifelse(labour_share>=0.34,"Labour Share Above Median",NA), # 75th percentile (weighted)
+         category=ifelse(labour_share<0.34,"Labour Share Below Median",category)) %>%
+  group_by(Ref_Date,type,category) %>%
+  summarise(contrib=sum(contrib))
+plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
+             type=unique(plotdata$type),
+             category=unique(plotdata$category)) %>%
+  left_join(plotdata,by=c("Ref_Date","type","category")) %>%
+  mutate(contrib=ifelse(is.na(contrib),0,contrib)) %>%
+  group_by(type,category) %>%
+  mutate(contrib_annual=rollsum(contrib,4,fill=NA,na.pad=F,align='right')) %>%
+  filter(Ref_Date>="Jan 2017") %>%
+  mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
+ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
+  geom_col(position='stack',size=0.05,color='white')+
+  facet_grid(cols=vars(category))+
+  theme(legend.position = 'bottom')+
+  scale_x_continuous("",breaks=seq(2017,2024))+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))+
+  scale_y_continuous(label=percent)+
+  labs(x="",
+       title="Non-Shelter Services Inflation Contributions by Labour Cost Intensity",
+       subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
+       y="Per Cent")
+ggsave("ChenTombeReplication/Figures/FigureX_labour_share_serv.png",width=8,height=8)
+print("Completed labour share results for non-shelter services")
