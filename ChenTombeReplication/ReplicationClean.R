@@ -735,7 +735,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Drivers and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
-ggsave("Figures/FigureX_Sensitive.png",width=8,height=8)
+ggsave("Figures/FigureX_Sensitive.png",width=8,height=4)
 
 #################
 # Section 3.5.4 #
