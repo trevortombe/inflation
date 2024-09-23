@@ -710,6 +710,33 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
 ggsave("Figures/Figure10.png",width=8,height=8)
 ggsave("~/MonPolSensitivePersist.eps",width=8,height=8)
 
+# Figure X: Sensitive vs Not sensitive
+plotdata<-unexp_shocks %>%
+  left_join(price_change,by=c("Ref_Date","product")) %>%
+  left_join(classify_types %>% dplyr::select(product,category=bank_influence),by=c("product")) %>% 
+  mutate(category=ifelse(category=="no","Not Sensitive","Sensitive"),
+         category=factor(category,levels=c("Sensitive","Not Sensitive"))) %>%
+  group_by(Ref_Date,type,category) %>%
+  summarise(contrib=sum(contrib))
+plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
+             type=unique(plotdata$type),
+             category=unique(plotdata$category)) %>%
+  left_join(plotdata,by=c("Ref_Date","type","category")) %>%
+  mutate(contrib=ifelse(is.na(contrib),0,contrib)) %>%
+  group_by(type,category) %>%
+  mutate(contrib_annual=rollsum(contrib,4,fill=NA,na.pad=F,align='right')) %>%
+  filter(Ref_Date>="Jan 2017") %>%
+  mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
+ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
+  geom_col(position='stack',size=0.05,color='white')+
+  facet_wrap(~category)+
+  theme(legend.position = 'bottom')+
+  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_y_continuous("Per Cent",label=percent)+
+  labs(title="Inflation Drivers and Sensitivity to Monetary Policy",
+       subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
+ggsave("Figures/FigureX_Sensitive.png",width=8,height=8)
+
 #################
 # Section 3.5.4 #
 #################
