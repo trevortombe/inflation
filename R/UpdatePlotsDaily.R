@@ -45,6 +45,118 @@ ggsave("Plots/Bitcoin.png",width=8,height=4)
 # Approximate city populations
 city_pop<-read_excel('Data/city_population.xlsx')
 
+# End of the consumer carbon tax in Canada: April 1, 2025
+start="2025-02-01" # tretment start
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2024/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2024.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+data2024 <- read_excel(gas_file,skip=2)
+colnames(data2024)[1]<-"city"
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2025/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2025.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+data2025 <- read_excel(gas_file,skip=2)
+colnames(data2025)[1]<-"city"
+clean_data<-data2024 %>%
+  mutate(row=row_number()) %>%
+  filter(row<=77) %>%
+  gather(date,val,-city,-row) %>%
+  mutate(date=paste0("2024/",date),
+         date=as.Date(date,"%Y/%m/%d"),
+         val=as.numeric(val)) %>%
+  filter(date>as.Date("2024-01-01")) %>%
+  rbind(
+    data2025 %>%
+      mutate(row=row_number()) %>%
+      filter(row<=77) %>%
+      gather(date,val,-city,-row) %>%
+      mutate(date=paste0("2025/",date),
+             date=as.Date(date,"%Y/%m/%d"),
+             val=as.numeric(val))
+  ) %>%
+  mutate(province=case_when(
+    row %in% seq(2,8) ~ "BC",
+    row %in% seq(10,15) ~ "AB",
+    row %in% seq(16,19) ~ "SK",
+    row %in% seq(20,21) ~ "MB",
+    row %in% seq(22,46) ~ "ON",
+    row %in% seq(47,56) ~ "QC",
+    row %in% seq(57,65) ~ "NB",
+    row %in% seq(66,71) ~ "NS",
+    row %in% seq(72,72) ~ "PE",
+    row %in% seq(73,77) ~ "NL"
+  )) %>%
+  drop_na() %>%
+  group_by(date,province) %>%
+  summarise(val=mean(val)) %>% 
+  ungroup() %>%
+  spread(province,val)
+pretreat<-clean_data %>%
+  filter(date<start)
+newdata<-clean_data %>%
+  filter(date>=start)
+model<-lm(QC~BC+AB+SK+MB+ON+NB+NS+PE+NL,data=pretreat) # pre-treatment best fit
+plotdata<-pretreat %>% 
+  cbind(synth=fitted(model)) %>%
+  select(date,QC,synth) %>%
+  rbind(
+    data.frame(date=newdata$date,
+               QC=newdata$QC,
+               synth=predict(model,newdata %>% select(BC,AB,SK,MB,ON,NB,NS,PE,NL)))
+  ) %>%
+  gather(type,val,-date)
+# regdata<-plotdata %>% 
+#   group_by(type) %>%
+#   mutate(change=val-weighted.mean(val,date=="2025-01-31")) %>%
+#   select(date,type,change) %>%
+#   spread(type,change) %>% 
+#   mutate(gap=QC-synth) %>%
+#   mutate(treated=ifelse(date>"2025-01-31",1,0))
+# model2<-lm(gap~1,data=regdata %>% filter(treated==1))
+# confint(model2,'(Intercept)',level=0.95)
+# effect<-paste0("95% CI Est (Jan 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/15.7,1)[2],
+#                " to ",percent(-confint(model2,'(Intercept)',level=0.95)/15.7,1)[1]," passthrough")
+ggplot(plotdata,aes(date,val,group=type,color=type))+
+  geom_line(size=1.5)
+  scale_color_manual(label=c("Manitoba","\"Synthetic Manitoba\" (Weighted Average of Other Provinces)"),
+                     values=col[2:1])+
+  scale_y_continuous(limit=c(110,170))+
+  scale_x_date(labels=date_format("%b\n%Y"),
+               date_breaks = '1 month',expand=c(0,0),
+               limit=c(as.Date(start),max(plotdata$date)+30))+
+  geom_vline(xintercept=as.Date("2024-01-01"),size=0.75,linetype='dashed')+
+  geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
+             fill='white',show.legend = F)+
+  annotate('text',x=as.Date("2023-12-28"),y=165,hjust=1,size=2,
+           label="MB Prov Gas Tax\nFully Suspended (-14c/L)")+
+  annotate('text',x=as.Date("2024-01-05"),y=110,hjust=0,
+           label=effect,color=col[3],size=2)+
+  geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
+               y=filter(plotdata,(type=="synth"&date==max(date)))$val,
+               yend=filter(plotdata,(type=="MB"&date==max(date)))$val,
+               arrow=arrow(length=unit(1,'mm')),
+               size=0.75,color=col[3])+
+  annotate('text',x=max(plotdata$date)+6,
+           y=mean(filter(plotdata,date==max(date))$val),
+           size=3,color=col[3],
+           label=paste0("  Price Gap\n  Estimate for\n  ",
+                        gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
+                        ":\n  ",change),hjust=0)+
+  labs(x="",y="Cents per Litre",
+       title="Effect of Suspending the Manitoba Gas Tax on Prices",
+       caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
+       subtitle=paste0("Displays average prices in Manitoba compared to a \"synthetic Manitoba\" composed of a fixed-weighted average of other
+provinces, excluding Alberta, with weights selected to best fit the period prior to the tax change. Data to ",
+                       gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
+ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
+
+
+plotdata<-clean_data %>%
+  filter(date>=as.Date("2025-01-01")) %>%
+  mutate(RoC=ifelse(province=="QC","Quebec","Rest of Canada")) %>%
+  group_by(date,RoC) %>%
+  summarise(val=mean(val))
+ggplot(plotdata,aes(date,val,group=RoC,color=RoC))+
+  geom_line()
+
 # Gas Tax Holiday in Manitoba, Jan 1, 2024
 start="2023-10-01" # pre-tretment start
 url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2023/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2023.xlsx'
