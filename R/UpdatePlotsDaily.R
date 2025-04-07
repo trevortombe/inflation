@@ -113,7 +113,7 @@ change<-(plotdata %>%
 ggplot(plotdata,aes(date,val,group=type,color=type))+
   geom_line(size=1.5)+
   scale_color_manual(label=c("Quebec (No Change in Carbon Pricing)","Rest of Canada (Adjusted)"),values=col[2:1])+
-  scale_y_continuous(limit=c(130,170))+
+  scale_y_continuous(limit=c(min(plotdata$val)-7,170))+
   scale_x_date(labels=date_format("%b\n%Y"),
                date_breaks = '1 month',expand=c(0,0),
                limit=c(as.Date("2025-01-01"),max(plotdata$date)+40))+
@@ -122,7 +122,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
              fill='white',show.legend = F)+
   annotate('text',x=start-1,y=165,hjust=1,size=2,
            label="Retail CTax Eliminated (-18c/L + GST/HST)")+
-  annotate('text',x=start+1,y=132,hjust=0,
+  annotate('text',x=start+1,y=min(plotdata$val)-5,hjust=0,
            label=effect,color=col[3],size=2)+
   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
                yend=filter(plotdata,(type=="synth"&date==max(date)))$val,
