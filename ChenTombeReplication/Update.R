@@ -4,14 +4,14 @@ source('R/Setup.R')
 # Load the Required Data #
 ##########################
 
-# Monthly CPI
-cpi_data<-get_cansim("18100004") %>%
-  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
-  rename(Value=VALUE)
-
 # CPI basket weights
 weights<-get_cansim("18100007") %>%
   mutate(Ref_Date=as.numeric(REF_DATE)) %>%
+  rename(Value=VALUE)
+
+# Monthly CPI
+cpi_data<-get_cansim("18100004") %>%
+  mutate(Ref_Date=as.yearmon(REF_DATE,"%Y-%m")) %>%
   rename(Value=VALUE)
 
 # Long series household final consumption data
