@@ -111,13 +111,13 @@ change<-(plotdata %>%
   select(drop) %>%
   as.character()
 ggplot(plotdata,aes(date,val,group=type,color=type))+
-  geom_line(size=1.5)+
+  geom_line(linewidth=1.5)+
   scale_color_manual(label=c("Quebec (No Change in Carbon Pricing)","Rest of Canada (Adjusted)"),values=col[2:1])+
   scale_y_continuous(limit=c(min(plotdata$val)-7,170))+
   scale_x_date(labels=date_format("%b\n%Y"),
                date_breaks = '1 month',expand=c(0,0),
                limit=c(as.Date("2025-01-01"),max(plotdata$date)+40))+
-  geom_vline(xintercept=start,size=0.75,linetype='dashed')+
+  geom_vline(xintercept=start,linewidth=0.75,linetype='dashed')+
   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
              fill='white',show.legend = F)+
   annotate('text',x=start-1,y=165,hjust=1,size=2,
@@ -128,7 +128,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
                yend=filter(plotdata,(type=="synth"&date==max(date)))$val,
                y=filter(plotdata,(type=="QC"&date==max(date)))$val,
                arrow=arrow(length=unit(1,'mm')),
-               size=0.75,color=col[3])+
+               linewidth=0.75,color=col[3])+
   annotate('text',x=max(plotdata$date)+6,
            y=mean(filter(plotdata,date==max(date))$val),
            size=3,color=col[3],
