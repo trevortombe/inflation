@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     env:
       FRED_KEY: ${{ secrets.FRED_KEY }}
     steps:
