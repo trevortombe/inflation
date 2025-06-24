@@ -10,8 +10,6 @@ This repo contains several regularly updated calculations to better understand C
 
 ![](Plots/MedianTrim_3mo.png)
 
-![](Plots/MedianTrimCommon_3mo.png)
-
 ![](Plots/EnergyShelterEffect.png)
 
 ![](Plots/MainDecomposition.png)

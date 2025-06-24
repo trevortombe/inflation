@@ -30,7 +30,7 @@ plotdata<-data %>%
 ggplot(plotdata %>%
          filter(Ref_Date>="Jan 2015"),aes(Ref_Date,(1+YoY)-1,group=Products.and.product.groups,
                                           color=Products.and.product.groups))+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   geom_ribbon(aes(ymin=min/100,ymax=max/100,x=Ref_Date),fill='gray80',
               inherit.aes = F)+
   geom_line(linewidth=2)+
@@ -61,7 +61,7 @@ plotdata<-yields %>%
   drop_na()
 ggplot(plotdata,aes(date,break_even))+
   geom_line(linewidth=1,color=col[1])+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   geom_text(data=filter(plotdata,date==max(date)),color=col[1],nudge_x=180,
             hjust=0,aes(label=paste0("Latest:",
                                      "\n",percent(break_even,.1))))+
@@ -89,7 +89,7 @@ temp<-data %>%
             median=median(change))
 ggplot(temp,aes(Ref_Date,above))+
   geom_line(linewidth=2,color=col[1])+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6))+
   labs(x="",y="Per Cent",
@@ -138,7 +138,7 @@ plotdata<-data %>%
   ) %>%
   filter(Ref_Date>="Jan 2010")
 ggplot(plotdata,aes(Ref_Date))+
-  geom_hline(yintercept=0,size=1,color='gray')+
+  geom_hline(yintercept=0,linewidth=1,color='gray')+
   geom_line(aes(y=excluding,color="Trevor's Not Terrible Calculation"),linewidth=1.5)+
   geom_line(aes(y=actual,color="Actual Series, Terminated :("),linewidth=1.5)+
   labs(title="CPI Change for Services Excluding Shelter Services",
@@ -192,7 +192,7 @@ plotdata<-decomp_cpi %>%
 dev.off()
 p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack')+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   geom_line(aes(y=cpi),linewidth=1.5)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
   scale_x_continuous(breaks=pretty_breaks(6))+
@@ -545,7 +545,7 @@ ggplot(plotdata,aes(Ref_Date))+
             nudge_x=0.5,color=col[2])+
   scale_y_continuous(label=percent)+
   scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+1))+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   labs(title="Energy and Shelter's Effect on Inflation in Canada",
        x="",y="Percent",
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
@@ -605,7 +605,7 @@ plotdata<-data2 %>%
                                             "Recreation, education",Products.and.product.groups))
 ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
                     color=Products.and.product.groups))+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
                   aes(label=Products.and.product.groups),hjust=0,
                   direction='y',nudge_x=0.05,size=3,
@@ -688,75 +688,75 @@ ggplot(plotdata,aes(date,rate,group=type,color=type))+
        x="",y="Percent")
 ggsave("Plots/MedianTrim.png",width=8,height=4)
 
-# Add own calculation of CPI Common
-# three-month average
-allitems<-indexes_raw %>%
-  filter(grepl("Consumer Price Index",product)) %>%
-  mutate(index=as.numeric(index),
-         allitems=index/lag(index,12)-1) %>%
-  select(date,allitems) %>%
-  filter(!is.na(allitems)) %>%
-  select(-date) %>%
-  ts(frequency=12,start=c(1990,1))
-change<-indexes_raw %>%
-  filter(!grepl("Consumer Price Index",product)) %>%
-  group_by(product) %>%
-  mutate(index=as.numeric(index),
-         YoY=index/lag(index,12)-1) %>%
-  filter(!is.na(YoY)) %>%
-  select(date,product,YoY) %>%
-  spread(product,YoY) %>%
-  select(-date) %>%
-  ts(frequency=12,start=c(1990,1))
-CPIcommon_index<-indexes_raw %>%
-  filter(grepl("Consumer Price Index",product)) %>%
-  select(-product) %>%
-  mutate(index=as.numeric(index)) %>%
-  filter(year(as.Date(date))==1989)
-temp<-data.frame(
-  date=as.yearmon("Jan 1990")+seq(0,length(allitems)-1)/12,
-  CPIcommon=predict(lm(allitems~predict(prcomp(change,scale=T,center=T),newdata=change)[,1]))
-)
-results<-CPIcommon_index
-for (y in seq(1990,max(year(as.Date(temp$date))))){
-  temp2<-temp %>%
-    filter(year(as.Date(date))==y) %>%
-    left_join(filter(results,year(as.Date(date))==y-1) %>% mutate(date=date+1),by='date') %>%
-    mutate(index=(1+CPIcommon)*index) %>%
-    select(date,index)
-  results<-results %>%
-    bind_rows(temp2)
-}
-CPIcommon_index_sa<-results %>%
-  mutate(group='group') %>%
-  rename(Value=index,
-         Ref_Date=date) %>%
-  getseas('group') %>%
-  mutate(change=Value/lag(Value,1))
-plotdata<-CPImedian %>%
-  select(date,CPImedian=change) %>%
-  left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
-  left_join(CPIcommon_index_sa %>% select(date=Ref_Date,CPIcommon=change),by='date') %>%
-  filter(date>="Jan 2009") %>%
-  select(date,CPImedian,CPItrim,CPIcommon) %>%
-  gather(type,rate,-date) %>%
-  group_by(type) %>%
-  mutate(rate6=(rate*lag(rate,1)*lag(rate,2)*lag(rate,3)*lag(rate,1)*lag(rate,5))^2-1,
-         rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
-ggplot(plotdata %>% filter(date>="Jan 2018"),aes(date,rate,group=type,color=type))+
-  annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
-  annotate('text',x=-Inf,y=0.035,hjust=0,
-           label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
-  geom_line(linewidth=2)+
-  scale_y_continuous(label=percent)+
-  scale_color_manual(label=c("CPI-Common *","CPI-Median","CPI-Trim"),values=col[1:3])+
-  scale_x_continuous(breaks=pretty_breaks(3))+
-  labs(title="Bank of Canada's Core Inflation Measures, 3-Month (Annualized) Change",
-       subtitle="Reflects the 3-month average annualized change in CPI-median, CPI-trim, and CPI-common",
-       caption='* Based on the implied seasonally adjusted price index that corresponds to the year-over-year CPI-common series.
-Source: Own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
-       x="",y="Percent")
-ggsave("Plots/MedianTrimCommon_3mo.png",width=8,height=4)
+# # Add own calculation of CPI Common
+# # three-month average
+# allitems<-indexes_raw %>%
+#   filter(grepl("Consumer Price Index",product)) %>%
+#   mutate(index=as.numeric(index),
+#          allitems=index/lag(index,12)-1) %>%
+#   select(date,allitems) %>%
+#   filter(!is.na(allitems)) %>%
+#   select(-date) %>%
+#   ts(frequency=12,start=c(1990,1))
+# change<-indexes_raw %>%
+#   filter(!grepl("Consumer Price Index",product)) %>%
+#   group_by(product) %>%
+#   mutate(index=as.numeric(index),
+#          YoY=index/lag(index,12)-1) %>%
+#   filter(!is.na(YoY)) %>%
+#   select(date,product,YoY) %>%
+#   spread(product,YoY) %>%
+#   select(-date) %>%
+#   ts(frequency=12,start=c(1990,1))
+# CPIcommon_index<-indexes_raw %>%
+#   filter(grepl("Consumer Price Index",product)) %>%
+#   select(-product) %>%
+#   mutate(index=as.numeric(index)) %>%
+#   filter(year(as.Date(date))==1989)
+# temp<-data.frame(
+#   date=as.yearmon("Jan 1990")+seq(0,length(allitems)-1)/12,
+#   CPIcommon=predict(lm(allitems~predict(prcomp(change,scale=T,center=T),newdata=change)[,1]))
+# )
+# results<-CPIcommon_index
+# for (y in seq(1990,max(year(as.Date(temp$date))))){
+#   temp2<-temp %>%
+#     filter(year(as.Date(date))==y) %>%
+#     left_join(filter(results,year(as.Date(date))==y-1) %>% mutate(date=date+1),by='date') %>%
+#     mutate(index=(1+CPIcommon)*index) %>%
+#     select(date,index)
+#   results<-results %>%
+#     bind_rows(temp2)
+# }
+# CPIcommon_index_sa<-results %>%
+#   mutate(group='group') %>%
+#   rename(Value=index,
+#          Ref_Date=date) %>%
+#   getseas('group') %>%
+#   mutate(change=Value/lag(Value,1))
+# plotdata<-CPImedian %>%
+#   select(date,CPImedian=change) %>%
+#   left_join(CPItrim %>% select(date,CPItrim=change),by='date') %>%
+#   left_join(CPIcommon_index_sa %>% select(date=Ref_Date,CPIcommon=change),by='date') %>%
+#   filter(date>="Jan 2009") %>%
+#   select(date,CPImedian,CPItrim,CPIcommon) %>%
+#   gather(type,rate,-date) %>%
+#   group_by(type) %>%
+#   mutate(rate6=(rate*lag(rate,1)*lag(rate,2)*lag(rate,3)*lag(rate,1)*lag(rate,5))^2-1,
+#          rate=(rate*lag(rate,1)*lag(rate,2))^4-1)
+# ggplot(plotdata %>% filter(date>="Jan 2018"),aes(date,rate,group=type,color=type))+
+#   annotate('rect',xmin=-Inf,xmax=Inf,ymin=0.01,ymax=0.03,alpha=0.25,fill='dodgerblue')+
+#   annotate('text',x=-Inf,y=0.035,hjust=0,
+#            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
+#   geom_line(linewidth=2)+
+#   scale_y_continuous(label=percent)+
+#   scale_color_manual(label=c("CPI-Common *","CPI-Median","CPI-Trim"),values=col[1:3])+
+#   scale_x_continuous(breaks=pretty_breaks(3))+
+#   labs(title="Bank of Canada's Core Inflation Measures, 3-Month (Annualized) Change",
+#        subtitle="Reflects the 3-month average annualized change in CPI-median, CPI-trim, and CPI-common",
+#        caption='* Based on the implied seasonally adjusted price index that corresponds to the year-over-year CPI-common series.
+# Source: Own calculations from Statistics Canada data for 55 products. Graph by @trevortombe',
+#        x="",y="Percent")
+# ggsave("Plots/MedianTrimCommon_3mo.png",width=8,height=4)
 
 # Bank of Canada Preferred Measures (Median and Trim + supercore), 3-month moving average
 plotdata<-CPImedian %>%
@@ -774,7 +774,7 @@ ggplot(plotdata %>% filter(date>="Jan 2017"),aes(date,rate,group=type,color=type
   annotate('text',x=-Inf,y=0.035,hjust=0,
            label="Target Range",color='dodgerblue',alpha=0.6,size=2.5)+
   geom_line(linewidth=2)+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   scale_y_continuous(label=percent)+
   scale_color_manual(label=c("CPI-Median","CPI-Trim",
                              "CPI-Trim Services, Ex Shelter"),
