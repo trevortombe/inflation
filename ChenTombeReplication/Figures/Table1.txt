@@ -1,11 +1,11 @@
 "Demand" "contrib" "Supply" "contrib.1"
-"Vehicle fuel/lubricants" 0.16 "Imputed rental fees for housing" 0.67
-"Air transport" 0.07 "Paid rental fees for housing" 0.29
-"Out-patient services" 0.07 "New trucks/vans/SUVs" 0.15
-"Insurance related to transport" 0.06 "Food (groceries)" 0.08
-"Used motor vehicles" 0.06 "Other actual financial charges" 0.04
-"Paid rental fees for housing" 0.04 "Life insurance" 0.03
-"Games of chance" 0.04 "Pharmaceutical products and other medical products (except cannabis)" 0.03
-"Tobacco" 0.03 "Equipment for sport, camping and open-air recreation" 0.03
-"Recreational and sporting services" 0.03 "Tobacco" 0.03
-"Legal and other services" 0.02 "Postal services" 0.02
+"Food (restaurants)" 0.27 "Imputed rental fees for housing" 0.53
+"Vehicle fuel/lubricants" 0.2 "Paid rental fees for housing" 0.18
+"Paid rental fees for housing" 0.11 "New trucks/vans/SUVs" 0.14
+"Insurance related to transport" 0.08 "Alcoholic beverages" 0.06
+"Used motor vehicles" 0.06 "Food (groceries)" 0.05
+"Air transport" 0.05 "Cable, satellite and other program distribution services" 0.03
+"Non-alcoholic beverages" 0.05 "Equipment for sport, camping and open-air recreation" 0.03
+"Tobacco" 0.03 "Other social services" 0.03
+"Implicit deposit charges" 0.03 "Postal services" 0.02
+"Maintenance and repair of vehicles" 0.02 "Alcoholic beverage services" 0.02
