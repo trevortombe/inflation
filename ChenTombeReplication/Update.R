@@ -70,7 +70,8 @@ link_months<-data.frame(
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
     Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
     Ref_Date>="May 2023" & Ref_Date<"May 2024" ~ 2022,
-    Ref_Date>="May 2024" ~ 2023
+    Ref_Date>="May 2024" & Ref_Date<"May 2025" ~ 2023,
+    Ref_Date>="May 2025" ~ 2024
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
@@ -556,6 +557,32 @@ table<-data.frame(table1,table2) %>% # Shorten selected product names
 table
 write.table(table,'ChenTombeReplication/Figures/Table1.txt',row.names = F)
 print("Completed Table 1")
+
+food_changes<-price_change %>%
+  filter(product=="Food") %>%
+  left_join(unexp_shocks %>% dplyr::select(Ref_Date,product,type),by=c("Ref_Date","product")) %>%
+  drop_na() %>%
+  filter(Ref_Date>="Jan 2020") %>%
+  dplyr::select(Ref_Date,price_change,type) %>%
+  spread(type,price_change) %>%
+  mutate(Ambiguous=ifelse(is.na(Ambiguous),1,Ambiguous),
+         Demand=ifelse(is.na(Demand),1,Demand),
+         Supply=ifelse(is.na(Supply),1,Supply)) %>%
+  gather(type,contrib,-Ref_Date) %>% group_by(type) %>%
+  mutate(cumulative=cumprod(contrib)-1,
+         type=factor(type,levels=c("Demand","Supply","Ambiguous")))
+ggplot(food_changes,aes(Ref_Date,cumulative,group=type,fill=type))+
+  geom_area(show.legend = F)+
+  annotate('text',x=2024,y=0.26,label="Demand",color=col[1],fontface='bold',size=5)+
+  annotate('text',x=2024,y=0.15,label="Supply",color='white',fontface='bold',size=6)+
+  annotate('text',x=2024,y=0.025,label="Ambiguous",color='white',fontface='bold',size=5)+
+  geom_hline(yintercept=0,size=1)+
+  scale_y_continuous(label=percent,limit=c(NA,0.3))+
+  scale_x_continuous()+
+  labs(x="",y="Cumulative change from 2020 Q1",
+       caption='Graph by @trevortombe',
+       subtitle="Source: Own calculations from Chen and Tombe (2023)")
+ggsave("ChenTombeReplication/Figures/FoodPrices.png",width=8,height=4)
 
 ###############
 # Section 3.5 #
