@@ -71,7 +71,9 @@ link_months<-data.frame(
     Ref_Date>="Dec 2018" & Ref_Date<"Jun 2021" ~ 2017,
     Ref_Date>="Jun 2021" & Ref_Date<"May 2022" ~ 2020,
     Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
-    Ref_Date>="May 2023" ~ 2022
+    Ref_Date>="May 2023" & Ref_Date<"May 2024" ~ 2022,
+    Ref_Date>="May 2024" & Ref_Date<"May 2025" ~ 2023,
+    Ref_Date>="May 2025" ~ 2024
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
@@ -152,8 +154,8 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
                       location=ifelse(product=="Energy",-0.005,location),
-                      location=ifelse(product=="Food (groceries)",0.024,location),
-                      location=ifelse(product=="All other items",0.03,location),
+                      # location=ifelse(product=="Food (groceries)",0.024,location),
+                      location=ifelse(product=="All other items",0.02,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
              hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
@@ -233,7 +235,8 @@ p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
   geom_label(data=plot %>% filter(Ref_Date==max(Ref_Date)) %>%
-               arrange(desc(type)) %>%
+               # arrange(desc(type)) %>%
+               arrange(type) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
                       labelname=gsub(" ","\n  ",type)),
@@ -256,15 +259,15 @@ ggsave("Figures/Figure2.png",gt,width=8,height=4)
 
 # Figure 4: Two Measures of Inflation
 real_change<-pce_data %>%
-  filter(Estimates=="Household final consumption expenditure [C]",
+  filter(Estimates=="Household final consumption expenditure",
          `Seasonal adjustment`=="Seasonally adjusted at annual rates",
-         Prices=="Chained (2012) dollars") %>%
+         Prices=="Chained (2017) dollars") %>%
   group_by(Estimates) %>%
   mutate(qty_change=Value/lag(Value,4),
          qty_index=Value) %>%
   dplyr::select(Ref_Date,product=Estimates,qty_change,qty_index)
 nom_change<-pce_data %>%
-  filter(Estimates=="Household final consumption expenditure [C]",
+  filter(Estimates=="Household final consumption expenditure",
          `Seasonal adjustment`=="Seasonally adjusted at annual rates",
          Prices=="Current prices") %>%
   group_by(Estimates) %>%
@@ -380,8 +383,8 @@ for (p in prods){ # VAR models; rolling windows; product-specific
       filter(Ref_Date>=as.yearmon(d)-10, # 10-year rolling window
              Ref_Date<=as.yearmon(d),
              product==p)
-    yr_val=year(min(regdata$Ref_Date))
-    qtr_val=quarter(min(regdata$Ref_Date))
+    yr_val=year(as.Date(min(regdata$Ref_Date)))
+    qtr_val=quarter(as.Date(min(regdata$Ref_Date)))
     P<-ts(log(regdata$price_index),start=c(yr_val,qtr_val),frequency = 4)
     Q<-ts(log(regdata$qty_index),start=c(yr_val,qtr_val),frequency = 4)
     VAR_data <- window(ts.union(P, Q), start = c(yr_val,qtr_val))
@@ -583,7 +586,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_x_continuous("",breaks=seq(2017,2025,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -612,7 +615,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_x_continuous("",breaks=seq(2017,2025,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -641,7 +644,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_x_continuous("",breaks=seq(2017,2025,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -703,7 +706,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_grid(rows=vars(category2),cols=vars(category))+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_x_continuous("",breaks=seq(2017,2025,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
@@ -731,7 +734,7 @@ ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
   theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  scale_x_continuous("",breaks=seq(2017,2025,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Drivers and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
@@ -742,32 +745,32 @@ ggsave("Figures/FigureX_Sensitive.png",width=8,height=4)
 #################
 
 # Figure 9: Contributions to PCE Inflation, 1972 to 2019
-products_aggregate<-c("Food and non-alcoholic beverages [C11]",
-                      "Alcoholic beverages, tobacco and cannabis [C12]",
-                      "Clothing and footwear [C13]",
-                      "Housing, water, electricity, gas and other fuels [C14]",
-                      "Furnishings, household equipment and other goods and services related to the dwelling and property [C15]",
-                      "Health [C16]",
-                      "Transport [C17]",
-                      "Communications [C18]",
-                      "Recreation and culture [C19]",
-                      "Education [C21]",
-                      "Food, beverage and accommodation services [C22]",
-                      "Insurance and financial services [C23]",
-                      "Miscellaneous goods and services [C24]",
-                      "Expenditure by non-residents in Canada [C252]", # negative, so affects the log()
-                      "Net expenditure abroad [C25]")
+products_aggregate<-c("Food and non-alcoholic beverages",
+                      "Alcoholic beverages, tobacco and cannabis",
+                      "Clothing and footwear",
+                      "Housing, water, electricity, gas and other fuels",
+                      "Furnishings, household equipment and other goods and services related to the dwelling and property",
+                      "Health",
+                      "Transport",
+                      "Communications",
+                      "Recreation and culture",
+                      "Education",
+                      "Food, beverage and accommodation services",
+                      "Insurance and financial services",
+                      "Miscellaneous goods and services",
+                      "Expenditure by non-residents in Canada", # negative, so affects the log()
+                      "Net expenditure abroad")
 products_exclude<-c(products_aggregate,
-                    "Goods [CG]","Durable goods [CD]",
-                    "Semi-durable goods [CSD]","Non-durable goods [CND]",
-                    "Services [CS]",
-                    "Expenditure by Canadians abroad [C251]",
-                    "Household final consumption expenditure [C]")
+                    "Goods","Durable goods",
+                    "Semi-durable goods","Non-durable goods",
+                    "Services",
+                    "Expenditure by Canadians abroad",
+                    "Household final consumption expenditure")
 real_change<-pce_data %>%
   filter(!Estimates %in% products_exclude,
          !grepl("Cannabis",Estimates),
          `Seasonal adjustment`=="Seasonally adjusted at annual rates",
-         Prices=="Chained (2012) dollars") %>%
+         Prices=="Chained (2017) dollars") %>%
   group_by(Estimates) %>%
   mutate(qty_change=Value/lag(Value,1),
          qty_index=Value) %>%
@@ -801,8 +804,8 @@ for (p in prods){
       filter(Ref_Date>=as.yearmon(d)-10, # ten year rolling window
              Ref_Date<=as.yearmon(d),
              product==p)
-    yr_val=year(min(regdata$Ref_Date))
-    qtr_val=quarter(min(regdata$Ref_Date))
+    yr_val=year(as.Date(min(regdata$Ref_Date)))
+    qtr_val=quarter(as.Date(min(regdata$Ref_Date)))
     P<-ts(log(regdata$price_index),start=c(yr_val,qtr_val),frequency = 4)
     Q<-ts(log(regdata$qty_index),start=c(yr_val,qtr_val),frequency = 4)
     VAR_data <- window(ts.union(P, Q), start = c(yr_val,qtr_val))
