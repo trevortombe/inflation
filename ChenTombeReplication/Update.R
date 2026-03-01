@@ -151,8 +151,8 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
                       location=ifelse(product=="Energy",-0.005,location),
-                      location=ifelse(product=="Food (groceries)",0.024,location),
-                      location=ifelse(product=="All other items",0.03,location),
+                      # location=ifelse(product=="Food (groceries)",0.024,location),
+                      location=ifelse(product=="All other items",0.02,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
              hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
@@ -233,7 +233,7 @@ p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
   geom_label(data=plot %>% filter(Ref_Date==max(Ref_Date)) %>%
-               arrange(desc(type)) %>%
+               arrange(type) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
                       labelname=gsub(" ","\n  ",type)),
@@ -257,15 +257,15 @@ print("Completed Figure 2")
 
 # Figure 4: Two Measures of Inflation
 real_change<-pce_data %>%
-  filter(Estimates=="Household final consumption expenditure [C]",
+  filter(Estimates=="Household final consumption expenditure",
          `Seasonal adjustment`=="Seasonally adjusted at annual rates",
-         Prices=="Chained (2012) dollars") %>%
+         Prices=="Chained (2017) dollars") %>%
   group_by(Estimates) %>%
   mutate(qty_change=Value/lag(Value,4),
          qty_index=Value) %>%
   dplyr::select(Ref_Date,product=Estimates,qty_change,qty_index)
 nom_change<-pce_data %>%
-  filter(Estimates=="Household final consumption expenditure [C]",
+  filter(Estimates=="Household final consumption expenditure",
          `Seasonal adjustment`=="Seasonally adjusted at annual rates",
          Prices=="Current prices") %>%
   group_by(Estimates) %>%
@@ -296,7 +296,7 @@ plotdata<-cpi_data %>%
   filter(Ref_Date>="1962 Q1",Ref_Date<=max(price_change$Ref_Date)) %>%
   gather(type,val,-Ref_Date)
 p<-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
-  geom_line(size=2,show.legend = F)+
+  geom_line(linewidth=2,show.legend = F)+
   geom_hline(yintercept=0,size=1)+
   scale_x_continuous(breaks=pretty_breaks(6))+
   annotate('text',x=2020,hjust=1,y=0.07,label="CPI Inflation",color=col[1],fontface='bold')+
@@ -574,10 +574,10 @@ food_changes<-price_change %>%
 ggplot(food_changes,aes(Ref_Date,cumulative,group=type,fill=type))+
   geom_area(show.legend = F)+
   annotate('text',x=2024,y=0.26,label="Demand",color=col[1],fontface='bold',size=5)+
-  annotate('text',x=2024,y=0.15,label="Supply",color='white',fontface='bold',size=6)+
-  annotate('text',x=2024,y=0.025,label="Ambiguous",color='white',fontface='bold',size=5)+
+  annotate('text',x=2024,y=0.175,label="Supply",color='white',fontface='bold',size=6)+
+  annotate('text',x=2024,y=0.05,label="Ambiguous",color='white',fontface='bold',size=5)+
   geom_hline(yintercept=0,size=1)+
-  scale_y_continuous(label=percent,limit=c(NA,0.3))+
+  scale_y_continuous(label=percent)+
   scale_x_continuous()+
   labs(x="",y="Cumulative change from 2020 Q1",
        caption='Graph by @trevortombe',
