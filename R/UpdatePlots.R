@@ -204,9 +204,10 @@ p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_label(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
                arrange(desc(product)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
-                      shift=-contrib[1],
+                      # shift=-contrib[1],
+                      shift=0,
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2+shift,location),
-                      location=ifelse(product=="Energy",-0.005,location),
+                      # location=ifelse(product=="Energy",-0.005,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
              hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
