@@ -189,38 +189,35 @@ plotdata<-decomp_cpi %>%
                                          "Groceries",
                                          "Goods ex groceries/energy",
                                          "Energy"))) # ensure negatives are at bottom
-dev.off()
-p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
+ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack')+
   geom_hline(yintercept=0,linewidth=1)+
   geom_line(aes(y=cpi),linewidth=1.5)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
-  scale_x_continuous(breaks=pretty_breaks(6))+
-  theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
-        legend.position = 'none',
+  scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+2.5))+
+  theme(legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
-  geom_label(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
+  geom_label_repel(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
                arrange(desc(product)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       # shift=-contrib[1],
                       shift=0,
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2+shift,location),
                       # location=ifelse(product=="Energy",-0.005,location),
-                      labelname=gsub(" ","\n  ",product)),
+                      labelname=gsub(" ","\n  ",product)),direction='y',
+               segment.alpha=0,label.size=NA,box.padding = unit(0,'mm'),
              aes(label=paste0("  ",product),y=location,color=product),
-             hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
+             hjust=0,nudge_x=0.25,fontface="bold",size=3,fill='white')+
   annotate('text',x=2021.5,hjust=1,y=0.05,label="All-Items CPI",size=3)+
   labs(x="",
-       title="Contribution of Selected Products to Canada's Inflation Rate",
+       title=paste0("Contribution of Selected Products to Canada's Inflation Rate (to ",
+                   max(plotdata$Ref_Date),")"),
        subtitle="Source: own calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
        caption="Graph by @trevortombe",
        y="Year-over-Year Change")
-gt <- ggplotGrob(p)
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-ggsave("Plots/MainDecomposition.png",gt,width=10,height=4.5)
+ggsave("Plots/MainDecomposition.png",width=10,height=4.5)
 
 # Change Since Feb 2020
 time_age=max(data$Ref_Date)-as.yearmon("Feb 2020")
@@ -609,11 +606,11 @@ ggplot(plotdata,aes(Ref_Date,change,group=Products.and.product.groups,
   geom_hline(yintercept=0,linewidth=1)+
   geom_text_repel(data=filter(plotdata,Ref_Date==max(Ref_Date)),
                   aes(label=Products.and.product.groups),hjust=0,
-                  direction='y',nudge_x=0.05,size=3,
+                  direction='y',nudge_x=0.25,size=3,
                   show.legend = F,segment.alpha=0)+
   geom_line(linewidth=2,show.legend=F)+
   scale_y_continuous(label=percent)+
-  scale_x_yearmon(limit=c(NA,year(as.Date(max(plotdata$Ref_Date)))+1.5),
+  scale_x_yearmon(limit=c(NA,year(as.Date(max(plotdata$Ref_Date)))+2.5),
                   breaks=pretty_breaks(6),format="%b\n%Y")+
   labs(x="",y="Per Cent Change",title="Price Changes in Canada, by Broad Product Category",
        subtitle="Displays the change in prices since February 2020, by major CPI item,
