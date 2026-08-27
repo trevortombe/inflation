@@ -854,3 +854,76 @@ ggplot(plotdata,aes(fill=shading,area=w,subgroup=subgroup)) +
        caption='Source: Own calculations from the Bank of Canada\'s Core Inflation Measures. Seasonally adjusted. Graph by @trevortombe',
        subtitle="Size of each square reflects the amount of average consumer spending.")
 ggsave('Plots/TreeMap_3moMA.png',width=6.5,height=5,dpi=300)
+
+#####################################
+# Gasoline price and margin changes #
+#####################################
+# lag two days, or previous Friday
+start <- Sys.Date() - 2
+start <- start - ifelse(as.POSIXlt(start)$wday == 6, 1,
+                        ifelse(as.POSIXlt(start)$wday == 0, 2, 0))
+start_prev_year<-start - 365
+
+# Load previous year data
+# url2025<-'https://charting.kalibrate.com/WPPS/Unleaded/Margin/MONTHLY/2025/Unleaded_Margin_MONTHLY_2025.xlsx'
+# GET(url2025, write_disk(gas_file2025 <- tempfile(fileext = ".xlsx")))
+# data2025 <- read_excel(gas_file2025,skip=2)
+# colnames(data2025)[1]<-"item"
+# write.csv(data2025,'Data/gas_data_2025.csv',row.names = F)
+data2025<-read.csv('Data/gas_data_2025.csv')
+
+# call the margin spreadsheet
+url<-'https://charting.kalibrate.com/WPPS/Unleaded/Margin/MONTHLY/2026/Unleaded_Margin_MONTHLY_2026.xlsx'
+GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+data <- read_excel(gas_file,skip=2)
+colnames(data)[1]<-"item"
+plotdata<-data %>%
+  mutate(row=row_number()) %>%
+  filter(row>=100,row<=104) %>%
+  gather(date,val,-row,-item) %>%
+  mutate(year=2026) %>%
+  rbind(
+    data2025 %>%
+      mutate(row=row_number()) %>%
+      filter(row>=100,row<=104) %>%
+      gather(date,val,-row,-item) %>%
+      mutate(year=2025) %>% drop_na()
+  ) %>%
+  mutate(yearmon = as.yearmon(
+    paste(year, substr(date, 1, 3)),
+    "%Y %b"
+  ),val=as.numeric(val)) %>%
+  mutate(item=case_when(
+    grepl("Crude Costs",item) ~ "Crude Costs",
+    grepl("Refiner Operating Margin",item) ~ "Refinery Margin",
+    grepl("Marketing Operating Margin",item) ~ "Retail Margin",
+    grepl("Taxes",item) ~ "Taxes"
+  )) %>%
+  drop_na() %>%
+  filter(yearmon>=max(yearmon)-1) %>%
+  group_by(yearmon) %>%
+  mutate(total=sum(val),
+         item=factor(item,levels=c("Crude Costs","Refinery Margin","Retail Margin","Taxes"))) %>%
+  arrange(yearmon,item) %>%
+  mutate(location=ifelse(row_number()==1,val/2,cumsum(val)-val/2),
+         item=factor(item,levels=c("Taxes","Retail Margin","Refinery Margin","Crude Costs"))) %>%
+  group_by(item) %>%
+  mutate(change=val-val[1])
+ggplot(plotdata,aes(as.Date(yearmon),val,group=item,fill=item))+
+  geom_col(position='stack')+
+  geom_text(aes(label=val,y=location),color='white',size=3)+
+  geom_text(data=filter(plotdata,yearmon==max(yearmon)),size=3,
+            aes(label=round(change,1),y=location),nudge_x=40)+
+  geom_text(data=filter(plotdata,yearmon==max(yearmon) & item=="Taxes"),size=2.5,
+            aes(label="Year-over-year\nchange:",y=Inf),nudge_x=40,vjust=1.25)+
+  scale_x_date(breaks = seq(as.Date(min(plotdata$yearmon)),
+                            as.Date(max(plotdata$yearmon)),
+                            by = "1 month"),
+               date_label="%b\n%Y")+
+  geom_hline(yintercept=0,linewidth=1)+
+  labs(x="",y="Cents per Litre",
+       title="Average gasoline prices in Canada, by component",
+       subtitle='Source: Own calculations from daily Kalibrate DPPS data',
+       caption="Graph by @trevortombe")
+ggsave('Plots/gas_prices.png',width=8,height=4.5)
+

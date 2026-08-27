@@ -27,3 +27,6 @@ This repo contains several regularly updated calculations to better understand C
 ![](Plots/BoCPath.png)
 
 ![](Plots/Expectations.png)
+
+![](Plots/gas_prices.png)
+
