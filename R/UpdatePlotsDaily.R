@@ -46,10 +46,11 @@ source("R/Setup.R")
 city_pop<-read_excel('Data/city_population.xlsx')
 
 # End of the consumer carbon tax in Canada: April 1, 2025
-start=as.Date("2025-04-01") # treatment start
-url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2025/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2025.xlsx'
-GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
-data2025 <- read_excel(gas_file,skip=2)
+# start=as.Date("2025-04-01") # treatment start
+# url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2025/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2025.xlsx'
+# GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
+# data2025 <- read_excel(gas_file,skip=2)
+data2025 <- read_excel('Data/Unleaded_Retail (Incl. Tax)_DAILY_2025.xlsx',skip=2)
 colnames(data2025)[1]<-"city"
 clean_data<-data2025 %>%
   mutate(row=row_number()) %>%
@@ -72,6 +73,7 @@ clean_data<-data2025 %>%
     row %in% seq(73,77) ~ "NL"
   )) %>%
   drop_na() %>%
+  filter(date<=as.Date("2025-07-01")) %>%
   group_by(date,province) %>%
   summarise(val=weighted.mean(val,pop)) %>% 
   ungroup() %>%
@@ -169,7 +171,7 @@ ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
 #   )) %>%
 #   drop_na() %>%
 #   group_by(date,province) %>%
-#   summarise(val=mean(val)) %>% 
+#   summarise(val=mean(val)) %>%
 #   ungroup() %>%
 #   filter(date>=start) %>%
 #   spread(province,val)
@@ -197,13 +199,14 @@ ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
 #     row %in% seq(73,77) ~ "NL"
 #   )) %>%
 #   drop_na() %>%
+#   filter(date<=as.Date("2024-05-01")) %>%
 #   group_by(date,province) %>%
-#   summarise(val=mean(val)) %>% 
+#   summarise(val=mean(val)) %>%
 #   ungroup() %>%
 #   # filter(date<="2023-03-01") %>%
 #   spread(province,val)
 # model<-lm(MB~BC+SK+ON+QC+NB+NS+PE+NL,data=pretreat) # pre-treatment best fit
-# plotdata<-pretreat %>% 
+# plotdata<-pretreat %>%
 #   cbind(synth=fitted(model)) %>%
 #   select(date,MB,synth) %>%
 #   rbind(
@@ -213,11 +216,11 @@ ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
 #   ) %>%
 #   gather(type,val,-date)
 # # average passthrough estimate
-# regdata<-plotdata %>% 
+# regdata<-plotdata %>%
 #   group_by(type) %>%
 #   mutate(change=val-weighted.mean(val,date=="2024-01-01")) %>%
 #   select(date,type,change) %>%
-#   spread(type,change) %>% 
+#   spread(type,change) %>%
 #   mutate(gap=MB-synth) %>%
 #   mutate(treated=ifelse(date>"2024-01-01",1,0))
 # model2<-lm(gap~1,data=regdata %>% filter(treated==1))
@@ -225,7 +228,7 @@ ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
 # effect<-paste0("95% CI Est (Jan 1 to Latest):  ",percent(-confint(model2,'(Intercept)',level=0.95)/15.7,1)[2],
 #                " to ",percent(-confint(model2,'(Intercept)',level=0.95)/15.7,1)[1]," passthrough")
 # # latest passthrough
-# change<-(plotdata %>% 
+# change<-(plotdata %>%
 #            group_by(type) %>%
 #            mutate(change=val-weighted.mean(val,date=="2024-01-01")) %>%
 #            filter(date==max(date)) %>%
