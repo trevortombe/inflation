@@ -71,7 +71,8 @@ link_months<-data.frame(
     Ref_Date>="May 2022" & Ref_Date<"May 2023" ~ 2021,
     Ref_Date>="May 2023" & Ref_Date<"May 2024" ~ 2022,
     Ref_Date>="May 2024" & Ref_Date<"May 2025" ~ 2023,
-    Ref_Date>="May 2025" ~ 2024
+    Ref_Date>="May 2025" & Ref_Date<"May 2026" ~ 2024,
+    Ref_Date>="May 2026" ~ 2025
   )) %>%
   group_by(basket) %>%
   mutate(link_month=min(Ref_Date)) %>% ungroup()
@@ -135,36 +136,32 @@ plotdata<-decomp_cpi %>%
     TRUE ~ product
   )) %>%
   filter(!is.na(cpi))
-while (!is.null(dev.list()))  dev.off()
-p<-ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
+ggplot(plotdata,aes(Ref_Date,contrib,group=product,fill=product))+
   geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(aes(y=cpi),linewidth=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
-  scale_x_continuous(breaks=pretty_breaks(6))+
-  theme(plot.margin = unit(c(0.25,10,0.25,0.25),"lines"),
-        legend.position = 'none',
+  scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+4))+
+  theme(legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
-  geom_label(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
+  geom_label_repel(data=plotdata %>% filter(Ref_Date==max(Ref_Date)) %>%
                arrange(desc(product)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
                       location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
-                      location=ifelse(product=="Energy",-0.005,location),
+                      # location=ifelse(product=="Energy",-0.005,location),
                       # location=ifelse(product=="Food (groceries)",0.024,location),
                       location=ifelse(product=="All other items",0.02,location),
                       labelname=gsub(" ","\n  ",product)),
              aes(label=paste0("  ",product),y=location,color=product),
-             hjust=0,nudge_x=1/12,fontface="bold",size=3,fill='white',label.size=0)+
+             direction='y',label.size=NA,segment.size=NA,box.padding=0,
+             hjust=0,nudge_x=2/12,fontface="bold",size=3,fill='white')+
   annotate('text',x=2021.5,hjust=1,y=0.05,label="All-item CPI",size=3)+
   labs(x="",
        title="Key Drives of Consumer Price Inflation in Canada",
        subtitle="Source: Authors' calculations from Statistics Canada data tables 18-10-0007 and 18-10-0004",
        y="Year-over-Year Change")
-gt <- ggplotGrob(p)
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-ggsave("ChenTombeReplication/Figures/Figure1.png",gt,width=8,height=4)
+ggsave("ChenTombeReplication/Figures/Figure1.png",width=8,height=4)
 print("Completed Figure 1")
 
 # Save Figure 1 data in a text file
@@ -206,8 +203,8 @@ for (p in unique(regdata$product)){
 }
 plot<-regdata %>%
   left_join(results %>%
-              mutate(type=ifelse((statistic)>1.96,"Items\nsensitive\nto oil\nprices",
-                                 "Items not\nsensitive\nto oil\nprices")) %>% 
+              mutate(type=ifelse((statistic)>1.96,"Items sensitive\nto oil prices",
+                                 "Items not sensitive\nto oil prices")) %>% 
               dplyr::select(product,type,estimate,statistic),by=c("product")) %>%
   group_by(Ref_Date,type) %>%
   summarise(contrib=sum(contrib),
@@ -217,8 +214,7 @@ plot<-regdata %>%
   filter(Ref_Date>="Jan 2017") %>%
   group_by(Ref_Date) %>%
   mutate(contrib=contrib/sum(effective_weight)) %>% ungroup()
-while (!is.null(dev.list()))  dev.off()
-p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
+ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
   geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(data=decomp_cpi %>%
               filter(product=="All-items excluding energy",
@@ -226,17 +222,16 @@ p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
               dplyr::select(Ref_Date,change) %>% drop_na(),aes(Ref_Date,change),inherit.aes = F,
             linewidth=2)+
   scale_y_continuous(label=percent,breaks=pretty_breaks(5))+
-  scale_x_continuous(breaks=pretty_breaks(6))+
+  scale_x_continuous(breaks=pretty_breaks(6),limit=c(NA,max(plotdata$Ref_Date)+2))+
   theme(plot.margin = unit(c(0.25,2,0.25,0.25),"lines"),
         legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
   geom_label(data=plot %>% filter(Ref_Date==max(Ref_Date)) %>%
-               arrange(type) %>%
+               arrange(rev(type)) %>%
                mutate(location=ifelse(row_number()==1,contrib/2,NA),
-                      location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location),
-                      labelname=gsub(" ","\n  ",type)),
+                      location=ifelse(row_number()>1,lag(cumsum(contrib),1)+contrib/2,location)),
              aes(label=paste0("",type),y=location,color=type),
              hjust=0,nudge_x=2/12,fontface="bold",size=3,fill='white',label.size=0)+
   annotate('text',x=2021.75,hjust=1,y=0.055,label="All items excluding energy",size=3)+
@@ -245,10 +240,7 @@ p<-ggplot(plot,aes(Ref_Date,contrib,group=type,fill=type))+
        subtitle="Source: Authors' calculations using Statistics Canada data tables 18-10-0004, 18-10-0007
 and FRED MCOILWTICO and DEXCAUS",
        y="Year-over-Year Change")
-gt <- ggplotGrob(p)
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-ggsave("ChenTombeReplication/Figures/Figure2.png",gt,width=8,height=4)
+ggsave("ChenTombeReplication/Figures/Figure2.png",width=8,height=4)
 print("Completed Figure 2")
 
 #############
@@ -297,7 +289,7 @@ plotdata<-cpi_data %>%
   gather(type,val,-Ref_Date)
 p<-ggplot(plotdata,aes(Ref_Date,val,group=type,color=type))+
   geom_line(linewidth=2,show.legend = F)+
-  geom_hline(yintercept=0,size=1)+
+  geom_hline(yintercept=0,linewidth=1)+
   scale_x_continuous(breaks=pretty_breaks(6))+
   annotate('text',x=2020,hjust=1,y=0.07,label="CPI Inflation",color=col[1],fontface='bold')+
   annotate('text',x=1985,hjust=0,y=0.09,label="PCE Inflation",color=col[2],fontface='bold')+
@@ -430,13 +422,11 @@ results<-CJ(Ref_Date=unique(results$Ref_Date), # this ensures all type categorie
   mutate(type=factor(type,level=c("Supply","Ambiguous","Demand")))
 
 # Figure 5a: Annual PCE Inflation
-while (!is.null(dev.list()))  dev.off()
-p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
+ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',linewidth=0.05,color='white')+
   geom_line(aes(Ref_Date,PCE_annual),size=2)+
   geom_hline(yintercept=0,size=1)+
-  theme(plot.margin = unit(c(0.25,3,0.25,0.25),"lines"),
-        legend.position = 'none',
+  theme(legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
@@ -448,27 +438,22 @@ p<-ggplot(results,aes(Ref_Date,contrib_annual,group=type,fill=type))+
                       labelname=gsub(" ","\n  ",type)),
              aes(label=paste0("  ",type),y=location,color=type),
              hjust=0,nudge_x=1/6,fontface="bold",size=3,fill='white',label.size = 0)+
-  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6))+
+  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6),limit=c(NA,max(results$Ref_Date)+3))+
   scale_y_continuous(label=percent,breaks=pretty_breaks(6))+
   annotate('text',x=2021.65,hjust=1,label="Annual PCE Inflation",size=3,y=.055)+
   labs(x="",
        title="Contribution of Supply and Demand Shocks to Annual PCE Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
        y="Per Cent")
-gt <- ggplotGrob(p)
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-ggsave("ChenTombeReplication/Figures/Figure5a.png",gt,width=8,height=4)
+ggsave("ChenTombeReplication/Figures/Figure5a.png",width=8,height=4)
 print("Completed Figure 5a")
 
 # Figure 5b: Quarterly PCE Inflation
-while (!is.null(dev.list()))  dev.off()
-p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
+ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
   geom_col(position='stack',size=0.05,color='white')+
   geom_line(aes(Ref_Date,PCE),size=2,color='black',inherit.aes = F)+
   geom_hline(yintercept=0,size=1)+
-  theme(plot.margin = unit(c(0.25,3,0.25,0.25),"lines"),
-        legend.position = 'none',
+  theme(legend.position = 'none',
         legend.key.width = unit(2,"cm"),
         legend.title=element_blank(),
         panel.grid.major.y = element_line(color='gray'))+
@@ -480,17 +465,14 @@ p<-ggplot(results,aes(Ref_Date,contrib,group=type,fill=type,color=type))+
                       labelname=gsub(" ","\n  ",type)),
              aes(label=paste0("  ",type),y=location,color=type),
              hjust=0,nudge_x=1/6,fontface="bold",size=3,fill='white',label.size = 0)+
-  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6))+
+  scale_x_yearmon(format='%Y',breaks=pretty_breaks(6),limit=c(NA,max(results$Ref_Date)+3))+
   scale_y_continuous(label=percent,breaks=pretty_breaks(6))+
   annotate('text',x=2021.65,hjust=1,label="Quarterly PCE Inflation",size=3,y=.0175)+
   labs(x="",
        title="Contribution of Supply and Demand Shocks to Quarterly PCE Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124",
        y="Per Cent")
-gt <- ggplotGrob(p)
-gt$layout$clip[gt$layout$name == "panel"] <- "off"
-grid.draw(gt)
-ggsave("ChenTombeReplication/Figures/Figure5b.png",gt,width=8,height=4)
+ggsave("ChenTombeReplication/Figures/Figure5b.png",width=8,height=4)
 print("Completed Figure 5b")
 
 # Save csv of the results - annual
@@ -573,7 +555,7 @@ food_changes<-price_change %>%
          type=factor(type,levels=c("Demand","Supply","Ambiguous")))
 ggplot(food_changes,aes(Ref_Date,cumulative,group=type,fill=type))+
   geom_area(show.legend = F)+
-  annotate('text',x=2024,y=0.26,label="Demand",color=col[1],fontface='bold',size=5)+
+  annotate('text',x=2024,y=0.28,label="Demand",color=col[1],fontface='bold',size=5)+
   annotate('text',x=2024,y=0.175,label="Supply",color='white',fontface='bold',size=6)+
   annotate('text',x=2024,y=0.05,label="Ambiguous",color='white',fontface='bold',size=5)+
   geom_hline(yintercept=0,size=1)+
@@ -610,8 +592,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,2))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Goods and Services Inflation",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -639,8 +621,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,3))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Energy Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -668,8 +650,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_wrap(~category)+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,3))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Contributions by Trade Intensity",
        subtitle="Source: Authors' calculations using Statistics Canada data table 36-10-0124")
@@ -730,8 +712,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_grid(rows=vars(category2),cols=vars(category))+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024,2))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,3))+
   scale_y_continuous("Per Cent",label=percent)+
   labs(title="Inflation Persistence and Sensitivity to Monetary Policy",
        subtitle='Source: Authors calculations using Statistics Canada data table 36-10-0124 and Chernis and Luu (2018)')
@@ -764,8 +746,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_grid(cols=vars(category))+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,3))+
   theme(axis.text.x = element_text(angle = 45,hjust=1))+
   scale_y_continuous(label=percent)+
   labs(x="",
@@ -803,8 +785,8 @@ plotdata<-CJ(Ref_Date=unique(plotdata$Ref_Date),
 ggplot(plotdata,aes(Ref_Date,contrib_annual,group=type,fill=type))+
   geom_col(position='stack',size=0.05,color='white')+
   facet_grid(cols=vars(category))+
-  theme(legend.position = 'bottom')+
-  scale_x_continuous("",breaks=seq(2017,2024))+
+  theme(legend.position = 'top',legend.justification = 'left')+
+  scale_x_continuous("",breaks=seq(2017,2026,3))+
   theme(axis.text.x = element_text(angle = 45,hjust=1))+
   scale_y_continuous(label=percent)+
   labs(x="",

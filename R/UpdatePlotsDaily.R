@@ -43,106 +43,106 @@ source("R/Setup.R")
 ##############################################
 
 # Approximate city populations
-city_pop<-read_excel('Data/city_population.xlsx')
+# city_pop<-read_excel('Data/city_population.xlsx')
 
 # End of the consumer carbon tax in Canada: April 1, 2025
 # start=as.Date("2025-04-01") # treatment start
 # url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2025/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2025.xlsx'
 # GET(url, write_disk(gas_file <- tempfile(fileext = ".xlsx")))
 # data2025 <- read_excel(gas_file,skip=2)
-data2025 <- read_excel('Data/Unleaded_Retail (Incl. Tax)_DAILY_2025.xlsx',skip=2)
-colnames(data2025)[1]<-"city"
-clean_data<-data2025 %>%
-  mutate(row=row_number()) %>%
-  filter(row<=77) %>%
-  cbind(pop=city_pop$pop) %>%
-  gather(date,val,-city,-row,-pop) %>%
-  mutate(date=paste0("2025/",date),
-         date=as.Date(date,"%Y/%m/%d"),
-         val=as.numeric(val)) %>%
-  mutate(province=case_when(
-    row %in% seq(2,8) ~ "BC",
-    row %in% seq(10,15) ~ "AB",
-    row %in% seq(16,19) ~ "SK",
-    row %in% seq(20,21) ~ "MB",
-    row %in% seq(22,46) ~ "ON",
-    row %in% seq(47,56) ~ "QC",
-    row %in% seq(57,65) ~ "NB",
-    row %in% seq(66,71) ~ "NS",
-    row %in% seq(72,72) ~ "PE",
-    row %in% seq(73,77) ~ "NL"
-  )) %>%
-  drop_na() %>%
-  filter(date<=as.Date("2025-07-01")) %>%
-  group_by(date,province) %>%
-  summarise(val=weighted.mean(val,pop)) %>% 
-  ungroup() %>%
-  spread(province,val)
-pretreat<-clean_data %>%
-  filter(date<start)
-newdata<-clean_data %>%
-  filter(date>=start)
-model<-lm(QC~BC+AB+SK+MB+ON+NB+NS+PE+NL,data=pretreat) # pre-treatment best fit
-plotdata<-pretreat %>% 
-  cbind(synth=fitted(model)) %>%
-  select(date,QC,synth) %>%
-  rbind(
-    data.frame(date=newdata$date,
-               QC=newdata$QC,
-               synth=predict(model,newdata %>% select(BC,AB,SK,MB,ON,NB,NS,PE,NL)))
-  ) %>%
-  gather(type,val,-date)
-regdata<-plotdata %>%
-  group_by(type) %>%
-  mutate(change=val-weighted.mean(val,date=="2025-03-31")) %>%
-  select(date,type,change) %>%
-  spread(type,change) %>%
-  mutate(gap=QC-synth) %>%
-  mutate(treated=ifelse(date>=start,1,0))
-model2<-lm(gap~1,data=regdata %>% filter(treated==1))
-confint(model2,'(Intercept)',level=0.95)
-effect<-paste0("95% CI Est (Apr 1 to Latest):  ",number(-confint(model2,'(Intercept)',level=0.95),0.1)[2],
-               " to ",number(-confint(model2,'(Intercept)',level=0.95),0.1)[1]," c/L passthrough")
-change<-(plotdata %>% 
-           group_by(type) %>%
-           mutate(change=val-weighted.mean(val,date==start-1)) %>%
-           filter(date==max(date)) %>%
-           select(type,change) %>%
-           spread(type,change) %>%
-           mutate(drop=paste(round(synth-QC,1),"c/L"))) %>%
-  select(drop) %>%
-  as.character()
-ggplot(plotdata,aes(date,val,group=type,color=type))+
-  geom_line(linewidth=1.5)+
-  scale_color_manual(label=c("Quebec (No Change in Carbon Pricing)","Rest of Canada (Adjusted)"),values=col[2:1])+
-  scale_y_continuous(limit=c(min(plotdata$val)-7,170))+
-  scale_x_date(labels=date_format("%b\n%Y"),
-               date_breaks = '1 month',expand=c(0,0),
-               limit=c(as.Date("2025-01-01"),max(plotdata$date)+40))+
-  geom_vline(xintercept=start,linewidth=0.75,linetype='dashed')+
-  geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
-             fill='white',show.legend = F)+
-  annotate('text',x=start-1,y=165,hjust=1,size=2,
-           label="Retail CTax Eliminated (-18c/L + GST/HST)")+
-  annotate('text',x=start+1,y=min(plotdata$val)-5,hjust=0,
-           label=effect,color=col[3],size=2)+
-  geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
-               yend=filter(plotdata,(type=="synth"&date==max(date)))$val,
-               y=filter(plotdata,(type=="QC"&date==max(date)))$val,
-               arrow=arrow(length=unit(1,'mm')),
-               linewidth=0.75,color=col[3])+
-  annotate('text',x=max(plotdata$date)+6,
-           y=mean(filter(plotdata,date==max(date))$val),
-           size=3,color=col[3],
-           label=paste0("  Price Gap\n  Estimate for\n  ",
-                        gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
-                        ":\n  ",change),hjust=0)+
-  labs(x="",y="Cents per Litre",
-       title="Effect of Ending the Federal Retail Carbon Tax on Gasoline Prices",
-       caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
-       subtitle=paste0("Displays average prices in Quebec compared to an adjusted average for the rest of Canada, which reflects a fixed-weighted
-average of other provinces with weights selected to best fit the period prior to the tax change. Data to ",gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
-ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
+# data2025 <- read_excel('Data/Unleaded_Retail (Incl. Tax)_DAILY_2025.xlsx',skip=2)
+# colnames(data2025)[1]<-"city"
+# clean_data<-data2025 %>%
+#   mutate(row=row_number()) %>%
+#   filter(row<=77) %>%
+#   cbind(pop=city_pop$pop) %>%
+#   gather(date,val,-city,-row,-pop) %>%
+#   mutate(date=paste0("2025/",date),
+#          date=as.Date(date,"%Y/%m/%d"),
+#          val=as.numeric(val)) %>%
+#   mutate(province=case_when(
+#     row %in% seq(2,8) ~ "BC",
+#     row %in% seq(10,15) ~ "AB",
+#     row %in% seq(16,19) ~ "SK",
+#     row %in% seq(20,21) ~ "MB",
+#     row %in% seq(22,46) ~ "ON",
+#     row %in% seq(47,56) ~ "QC",
+#     row %in% seq(57,65) ~ "NB",
+#     row %in% seq(66,71) ~ "NS",
+#     row %in% seq(72,72) ~ "PE",
+#     row %in% seq(73,77) ~ "NL"
+#   )) %>%
+#   drop_na() %>%
+#   filter(date<=as.Date("2025-07-01")) %>%
+#   group_by(date,province) %>%
+#   summarise(val=weighted.mean(val,pop)) %>% 
+#   ungroup() %>%
+#   spread(province,val)
+# pretreat<-clean_data %>%
+#   filter(date<start)
+# newdata<-clean_data %>%
+#   filter(date>=start)
+# model<-lm(QC~BC+AB+SK+MB+ON+NB+NS+PE+NL,data=pretreat) # pre-treatment best fit
+# plotdata<-pretreat %>% 
+#   cbind(synth=fitted(model)) %>%
+#   select(date,QC,synth) %>%
+#   rbind(
+#     data.frame(date=newdata$date,
+#                QC=newdata$QC,
+#                synth=predict(model,newdata %>% select(BC,AB,SK,MB,ON,NB,NS,PE,NL)))
+#   ) %>%
+#   gather(type,val,-date)
+# regdata<-plotdata %>%
+#   group_by(type) %>%
+#   mutate(change=val-weighted.mean(val,date=="2025-03-31")) %>%
+#   select(date,type,change) %>%
+#   spread(type,change) %>%
+#   mutate(gap=QC-synth) %>%
+#   mutate(treated=ifelse(date>=start,1,0))
+# model2<-lm(gap~1,data=regdata %>% filter(treated==1))
+# confint(model2,'(Intercept)',level=0.95)
+# effect<-paste0("95% CI Est (Apr 1 to Latest):  ",number(-confint(model2,'(Intercept)',level=0.95),0.1)[2],
+#                " to ",number(-confint(model2,'(Intercept)',level=0.95),0.1)[1]," c/L passthrough")
+# change<-(plotdata %>% 
+#            group_by(type) %>%
+#            mutate(change=val-weighted.mean(val,date==start-1)) %>%
+#            filter(date==max(date)) %>%
+#            select(type,change) %>%
+#            spread(type,change) %>%
+#            mutate(drop=paste(round(synth-QC,1),"c/L"))) %>%
+#   select(drop) %>%
+#   as.character()
+# ggplot(plotdata,aes(date,val,group=type,color=type))+
+#   geom_line(linewidth=1.5)+
+#   scale_color_manual(label=c("Quebec (No Change in Carbon Pricing)","Rest of Canada (Adjusted)"),values=col[2:1])+
+#   scale_y_continuous(limit=c(min(plotdata$val)-7,170))+
+#   scale_x_date(labels=date_format("%b\n%Y"),
+#                date_breaks = '1 month',expand=c(0,0),
+#                limit=c(as.Date("2025-01-01"),max(plotdata$date)+40))+
+#   geom_vline(xintercept=start,linewidth=0.75,linetype='dashed')+
+#   geom_point(data=filter(plotdata,date==max(date)),size=2,stroke=2,shape=21,
+#              fill='white',show.legend = F)+
+#   annotate('text',x=start-1,y=165,hjust=1,size=2,
+#            label="Retail CTax Eliminated (-18c/L + GST/HST)")+
+#   annotate('text',x=start+1,y=min(plotdata$val)-5,hjust=0,
+#            label=effect,color=col[3],size=2)+
+#   geom_segment(x=max(plotdata$date)+5,xend=max(plotdata$date)+5,
+#                yend=filter(plotdata,(type=="synth"&date==max(date)))$val,
+#                y=filter(plotdata,(type=="QC"&date==max(date)))$val,
+#                arrow=arrow(length=unit(1,'mm')),
+#                linewidth=0.75,color=col[3])+
+#   annotate('text',x=max(plotdata$date)+6,
+#            y=mean(filter(plotdata,date==max(date))$val),
+#            size=3,color=col[3],
+#            label=paste0("  Price Gap\n  Estimate for\n  ",
+#                         gsub(" 0"," ",format(max(plotdata$date),"%b %d, %Y")),
+#                         ":\n  ",change),hjust=0)+
+#   labs(x="",y="Cents per Litre",
+#        title="Effect of Ending the Federal Retail Carbon Tax on Gasoline Prices",
+#        caption='Source: own calculations from daily Kalibrate DPPS data\nGraph by @trevortombe',
+#        subtitle=paste0("Displays average prices in Quebec compared to an adjusted average for the rest of Canada, which reflects a fixed-weighted
+# average of other provinces with weights selected to best fit the period prior to the tax change. Data to ",gsub(" 0"," ",format(max(newdata$date),"%B %d, %Y")),"."))
+# ggsave('Plots/gas_ctax_2025.png',width=8,height=4.5)
 
 # Gas Tax Holiday in Manitoba, Jan 1, 2024
 # start="2023-10-01" # pre-tretment start
