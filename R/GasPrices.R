@@ -8,6 +8,31 @@ source("R/Setup.R")
 # Approximate city populations
 city_pop<-read_excel('Data/city_population.xlsx')
 
+# Lack of effect of federal tax change - naive before and after
+start="2026-04-20"
+data2026 <- read_excel('Data/Unleaded_Retail (Incl. Tax)_DAILY_2026.xlsx',skip=2)
+colnames(data2026)[1]<-"city"
+plotdata<-data2026 %>%
+  filter(city=="Canada Ave(V)") %>%
+  gather(date,val,-city) %>%
+  mutate(date=paste0("2026/",date),
+         date=as.Date(date,"%Y/%m/%d"),
+         val=as.numeric(val)) %>%
+  filter(date<="2026-05-04",date>="2026-04-06")
+ggplot(plotdata,aes(date,val))+
+  geom_line(linewidth=2,color=col[2])+
+  scale_x_date(labels=date_format("%b %d,\n%Y"),date_breaks = '1 week')+
+  geom_vline(xintercept=as.Date("2026-04-20"),linewidth=1,linetype='dashed')+
+  annotate('text',x=as.Date("2026-04-19"),hjust=1,y=187.5,label="Federal tax cut")+
+  labs(title="Canadian average gasoline prices",y="Cents per litre",x="",
+       subtitle="Source: Own calculations using Kalibrate margin data, volume-weighted Canada average.",
+       caption='Graph by @trevortombe')
+ggsave('Plots/gas_tax_2026_silly.png',width=8,height=4.5)
+mean((plotdata %>% filter(date<="2026-04-19"))$val)
+mean((plotdata %>% filter(date>"2026-04-20"))$val)
+
+as.Date("2026-04-20")-14
+
 # End of the consumer carbon tax in Canada: April 1, 2025
 start=as.Date("2025-04-01") # treatment start
 # url<-'https://charting.kalibrate.com/WPPS/Unleaded/Retail%20(Incl.%20Tax)/DAILY/2025/Unleaded_Retail%20(Incl.%20Tax)_DAILY_2025.xlsx'
@@ -221,7 +246,7 @@ ggplot(plotdata,aes(date,val,group=type,color=type))+
   geom_line(size=1.5)+
   scale_color_manual(label=c("Alberta","\"Synthetic Alberta\" (Weighted Average of Other Provinces)"),
                      values=col[1:2])+
-  scale_x_date(labels=date_format("%d\n%b"),date_breaks = '1 month',)+
+  scale_x_date(labels=date_format("%b\n%Y"),date_breaks = '1 month',)+
   geom_vline(xintercept=as.Date("2022-03-31"),size=0.75,linetype='dashed')+
   annotate('text',x=as.Date("2022-03-28"),y=205,hjust=1,size=3,
            label="Fuel tax suspended")+
